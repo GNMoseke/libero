@@ -9,13 +9,13 @@ use rocket::futures::StreamExt;
 /// A generic Backlog store trait to allow test mocking.
 /// (or swapping the underlying store in the future if I feel like returning to the comfortable land of relational DBs)
 pub trait BacklogStore {
-    async fn write_items(&self, new_items: Vec<BacklogItem>) -> bool;
-    async fn get_items(
+    fn write_items(&self, new_items: Vec<BacklogItem>) -> impl std::future::Future<Output = bool> + Send;
+    fn get_items(
         &self,
         filter: impl Into<Option<Document>>,
         sort_by: Option<&str>,
-    ) -> Result<Vec<BacklogItem>, mongodb::error::Error>;
-    async fn delete_items(&self) -> bool;
+    ) -> impl std::future::Future<Output = Result<Vec<BacklogItem>, mongodb::error::Error>>;
+    fn delete_items(&self) -> impl std::future::Future<Output = bool> + Send;
 }
 
 // TODO: this needs to be a client instead of a user collection to support multiple users
