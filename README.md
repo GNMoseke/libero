@@ -18,3 +18,15 @@ $ docker run --name khares-mongodb -p 27017:27017 -d mongodb/mongodb-community-s
 ```sh
 $ docker run --name khares-mongodb -v /path/on/local:/data/db -p 27017:27017 -d mongodb/mongodb-community-server:latest
 ```
+
+## Quick CURL command reference
+```sh
+# post a new entry:
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{"title":"Hades","progress":"Complete","category":"Game"}' \
+  http://localhost:8000/backlog/item
+
+# get all entries
+curl http://localhost:8000/backlog
+```
