@@ -35,7 +35,7 @@ async fn list_backlog_entries(
 ) -> Json<Vec<items::BacklogItem>> {
     // if we're given both parts of a filter, use it. Otherwise pass None.
     let document_matcher = match (filter_field, filter_value) {
-        (Some(field), Some(val)) => doc! { field: val}.into(),
+        (Some(field), Some(val)) => doc! { field: val }.into(),
         _ => None,
     };
 
@@ -59,24 +59,16 @@ async fn create_backlog_entry(new_item: Json<BacklogItem>, db: &State<MongoBackl
     }
 }
 
-#[get("/item?<id>")]
-fn get_backlog_entry(id: &str) -> Json<items::BacklogItem> {
-    //debug!("raw resp: {}", raw_text);
-
-    unimplemented!()
-    /*
-    Request content needs:
-        - unique ID of backlog entry
-    */
-}
-
-#[delete("/item?<id>")]
-fn remove_backlog_entry(id: &str) {
-    unimplemented!()
-    /*
-    Request content needs:
-        - unique ID of backlog entry
-    */
+// delete by title and category, which should be a sufficiently unique combination
+// both are required fields for a BacklogItem so all entries should have them
+#[delete("/item?<title>&<category>")]
+async fn remove_backlog_entry(title: &str, category: &str,  db: &State<MongoBacklogStore>) -> Value {
+    // NOTE: this is case-sensitive (intentionally)
+    if db.delete_items(doc! { "title": title, "category": category }).await {
+        json!({ "status": "success" })
+    } else {
+        json!({ "status": "fail"})
+    }
 }
 
 #[rocket::main]
@@ -101,7 +93,6 @@ async fn main() -> Result<(), rocket::Error> {
             routes![
                 list_backlog_entries,
                 create_backlog_entry,
-                get_backlog_entry,
                 remove_backlog_entry
             ],
         )

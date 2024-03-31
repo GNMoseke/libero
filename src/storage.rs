@@ -1,7 +1,7 @@
 use crate::items::BacklogItem;
 use log::{debug, error};
 use mongodb::bson::{doc, Document};
-use mongodb::options::FindOptions;
+use mongodb::options::{DeleteOptions, FindOptions};
 use mongodb::Collection;
 use rocket::futures::StreamExt;
 
@@ -15,7 +15,7 @@ pub trait BacklogStore {
         filter: impl Into<Option<Document>>,
         sort_by: Option<&str>,
     ) -> impl std::future::Future<Output = Result<Vec<BacklogItem>, mongodb::error::Error>>;
-    fn delete_items(&self) -> impl std::future::Future<Output = bool> + Send;
+    fn delete_items(&self, filter: Document) -> impl std::future::Future<Output = bool> + Send;
 }
 
 // TODO: this needs to be a client instead of a user collection to support multiple users
@@ -64,7 +64,18 @@ impl BacklogStore for MongoBacklogStore {
         Ok(items)
     }
 
-    async fn delete_items(&self) -> bool {
-        todo!()
+    async fn delete_items(&self, filter: Document) -> bool {
+        let opts: DeleteOptions = DeleteOptions::builder().build();
+        let res = self.user_collection.delete_many(filter, opts).await;
+        match res {
+            Ok(delete_results) => {
+                debug!("successfully deleted items: {:?}", delete_results);
+                true
+            }
+            Err(err) => {
+                error!("Issue deleting items from backlog: {}", err);
+                false
+            }
+        }
     }
 }
