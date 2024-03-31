@@ -29,4 +29,7 @@ curl --header "Content-Type: application/json" \
 
 # get all entries
 curl http://localhost:8000/backlog
+
+# Delete an entry by title/genre
+curl --request DELETE "http://localhost:8000/backlog/item?title=Hades&category=Game"
 ```
