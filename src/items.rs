@@ -1,7 +1,9 @@
+use std::fmt::{write, Display};
+
 use rocket::serde::{Serialize, Deserialize};
 use uuid::Uuid;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct BacklogItem {
     id: Uuid,
     category: BacklogItemCategory,
@@ -18,7 +20,14 @@ pub struct BacklogItem {
     // tags: Option<Vec<String>>
 }
 
-#[derive(Serialize, Deserialize)]
+impl Display for BacklogItem {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}: {} {}",
+               self.title, self.category, self.progress)
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub enum BacklogItemCategory {
     Game,
     Book,
@@ -26,10 +35,36 @@ pub enum BacklogItemCategory {
     Show
 }
 
-#[derive(Serialize, Deserialize)]
+impl Display for BacklogItemCategory {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        // There's probably a better way to do this with a macro
+        let as_string = match self {
+            Self::Game => "Game",
+            Self::Book => "Book",
+            Self::Movie => "Movie",
+            Self::Show => "Show"
+        };
+        write!(f, "Type: {}", as_string)
+    }
+}
+
+#[derive(Serialize, Deserialize,  Debug)]
 pub enum BacklogItemProgress {
     Backlog,
     InProgress,
     Complete,
     DNF
+}
+
+impl Display for BacklogItemProgress {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        // There's probably a better way to do this with a macro
+        let as_string = match self {
+            Self::Backlog => "Baclog",
+            Self::InProgress => "In Progress",
+            Self::Complete => "Complete",
+            Self::DNF => "DNF"
+        };
+        write!(f, "Progress: {}", as_string)
+    }
 }
