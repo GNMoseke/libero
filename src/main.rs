@@ -1,6 +1,14 @@
-#[macro_use] extern crate rocket;
-use rocket::serde::{Serialize, json::Json};
+#[macro_use]
+extern crate rocket;
 use log::{debug, error, info};
+use mongodb::{
+    bson::{doc, Document},
+    options::ClientOptions,
+    Client,
+};
+use rocket::serde::json::Json;
+use rocket::State;
+use storage::{BacklogStore, MongoBacklogStore};
 
 pub mod items;
 pub mod storage;
@@ -10,12 +18,34 @@ fn ping() -> &'static str {
     "pong"
 }
 
+// TODO: allow user param to be passed for queries to dispatch to correct mongo db
+// let db = self.client.database(&self.user);
+
 // TODO: move these to their own file/handler crate
-#[get("/")]
-fn list_backlog_entries() -> Json<Vec<items::BacklogItem>> {
-    unimplemented!()
-    // Return all
-    // TODO: allow pagination, sorting, type args
+
+// TODO: pagination
+#[get("/?<sort_by>&<filter_field>&<filter_value>")]
+async fn list_backlog_entries(
+    sort_by: Option<&str>,
+    filter_field: Option<&str>,
+    filter_value: Option<&str>,
+    db: &State<MongoBacklogStore>,
+) -> Json<Vec<items::BacklogItem>> {
+    // if we're given both parts of a filter, use it. Otherwise pass None.
+    let document_matcher = match (filter_field, filter_value) {
+        (Some(field), Some(val)) => doc! { field: val}.into(),
+        _ => None,
+    };
+
+    let all_entries = db.get_items(document_matcher, sort_by).await;
+    match all_entries {
+        Ok(entries) => Json(entries),
+        Err(err) => {
+            // TODO: convert this to a failed response code instead of just silently swallowing
+            error!("Error occured getting entries: {:?}", err);
+            Json(Vec::new())
+        }
+    }
 }
 
 #[post("/item")]
@@ -36,7 +66,7 @@ fn get_backlog_entry(id: &str) -> Json<items::BacklogItem> {
     //debug!("raw resp: {}", raw_text);
 
     unimplemented!()
-    /* 
+    /*
     Request content needs:
         - unique ID of backlog entry
     */
@@ -45,16 +75,45 @@ fn get_backlog_entry(id: &str) -> Json<items::BacklogItem> {
 #[delete("/item?<id>")]
 fn remove_backlog_entry(id: &str) {
     unimplemented!()
-    /* 
+    /*
     Request content needs:
         - unique ID of backlog entry
     */
 }
 
-#[launch]
-fn rocket() -> _ {
+#[rocket::main]
+async fn main() -> Result<(), rocket::Error> {
+    info!("Starting server...");
+    // Parse a connection string into an options struct.
+    // we explicitly want to panic here if we can't connect to the database, so use `.unwrap()`
+    let client_options = ClientOptions::parse("mongodb://localhost:27017")
+        .await
+        .unwrap();
+    let mongo_client = Client::with_options(client_options).unwrap();
+
+    info!("Successfully connected to mongo instance...");
+
     // Mount paths by namespace
     rocket::build()
         .mount("/util", routes![ping])
-        .mount("/backlog", routes![list_backlog_entries, create_backlog_entry, get_backlog_entry, remove_backlog_entry])
+        .mount(
+            "/backlog",
+            routes![
+                list_backlog_entries,
+                create_backlog_entry,
+                get_backlog_entry,
+                remove_backlog_entry
+            ],
+        )
+        .manage(
+            // TODO: de-hardcode this
+            // This is global application state accessible by any handler
+            MongoBacklogStore {
+                user_collection: mongo_client.database("user1").collection("Backlog"),
+            },
+        )
+        .launch()
+        .await?;
+
+    Ok(())
 }

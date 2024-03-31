@@ -1,11 +1,10 @@
-use std::fmt::{write, Display};
+use std::fmt::Display;
 
-use rocket::serde::{Serialize, Deserialize};
-use uuid::Uuid;
+use rocket::serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct BacklogItem {
-    id: Uuid,
+    id: String,
     category: BacklogItemCategory,
     title: String,
     progress: BacklogItemProgress,
@@ -22,8 +21,7 @@ pub struct BacklogItem {
 
 impl Display for BacklogItem {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}: {} {}",
-               self.title, self.category, self.progress)
+        write!(f, "{}: {} {}", self.title, self.category, self.progress)
     }
 }
 
@@ -32,7 +30,7 @@ pub enum BacklogItemCategory {
     Game,
     Book,
     Movie,
-    Show
+    Show,
 }
 
 impl Display for BacklogItemCategory {
@@ -42,18 +40,18 @@ impl Display for BacklogItemCategory {
             Self::Game => "Game",
             Self::Book => "Book",
             Self::Movie => "Movie",
-            Self::Show => "Show"
+            Self::Show => "Show",
         };
         write!(f, "Type: {}", as_string)
     }
 }
 
-#[derive(Serialize, Deserialize,  Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub enum BacklogItemProgress {
     Backlog,
     InProgress,
     Complete,
-    DNF
+    DNF,
 }
 
 impl Display for BacklogItemProgress {
@@ -63,7 +61,7 @@ impl Display for BacklogItemProgress {
             Self::Backlog => "Baclog",
             Self::InProgress => "In Progress",
             Self::Complete => "Complete",
-            Self::DNF => "DNF"
+            Self::DNF => "DNF",
         };
         write!(f, "Progress: {}", as_string)
     }
