@@ -1,12 +1,14 @@
+// todo: clean up this import vomit
 #[macro_use]
 extern crate rocket;
-use log::{debug, error, info};
+use items::BacklogItem;
+use log::{error, info};
 use mongodb::{
-    bson::{doc, Document},
+    bson::doc,
     options::ClientOptions,
     Client,
 };
-use rocket::serde::json::Json;
+use rocket::serde::json::{json, Json, Value};
 use rocket::State;
 use storage::{BacklogStore, MongoBacklogStore};
 
@@ -48,17 +50,13 @@ async fn list_backlog_entries(
     }
 }
 
-#[post("/item")]
-fn create_backlog_entry() {
-    unimplemented!()
-    /*
-    Request content needs:
-        - Item type enum
-        - Title
-        - additional metadata per type
-     */
-
-    // TODO: store by unique ID
+#[post("/item", data = "<new_item>")]
+async fn create_backlog_entry(new_item: Json<BacklogItem>, db: &State<MongoBacklogStore>) -> Value {
+    if db.write_items(vec![new_item.into_inner()]).await {
+        json!({ "status": "success" })
+    } else {
+        json!({ "status": "fail"})
+    }
 }
 
 #[get("/item?<id>")]
@@ -83,6 +81,8 @@ fn remove_backlog_entry(id: &str) {
 
 #[rocket::main]
 async fn main() -> Result<(), rocket::Error> {
+    env_logger::init();
+
     info!("Starting server...");
     // Parse a connection string into an options struct.
     // we explicitly want to panic here if we can't connect to the database, so use `.unwrap()`
@@ -108,6 +108,7 @@ async fn main() -> Result<(), rocket::Error> {
         .manage(
             // TODO: de-hardcode this
             // This is global application state accessible by any handler
+            // through the magic of mongo, these will be created automatically if they don't already exist
             MongoBacklogStore {
                 user_collection: mongo_client.database("user1").collection("Backlog"),
             },

@@ -4,7 +4,6 @@ use rocket::serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct BacklogItem {
-    id: String,
     category: BacklogItemCategory,
     title: String,
     progress: BacklogItemProgress,
