@@ -9,5 +9,12 @@ rocket = { version = "0.5.0", features = ["json"] }
 
 # Avoids extra annotation over serializable structs
 serde = { version = "1.0", features = ["derive"] }
+
+# UUIDs are always useful
+uuid = { version = "1.8.0", features = ["v4", "fast-rng"]}
+
+# Datastore (right now)
 mongodb = "2.8.1"
+
+# Raw prints are the enemy of the people
 log = "0.4.21"
