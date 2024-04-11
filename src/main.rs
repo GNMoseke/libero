@@ -71,6 +71,18 @@ async fn remove_backlog_entry(title: &str, category: &str,  db: &State<MongoBack
     }
 }
 
+/* TODO Routes for:
+- C&H or other comic
+- mood playlist
+- run/ride planner
+- APOD
+- xkcd
+- wikipedia fun fact
+- shitty quote
+- random game/book/movie with high rating that you can add to backlog
+- dinner options
+*/
+
 #[rocket::main]
 async fn main() -> Result<(), rocket::Error> {
     env_logger::init();
