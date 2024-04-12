@@ -1,4 +1,4 @@
-use crate::backlog_items::BacklogItem;
+use crate::backlog::item::BacklogItem;
 use log::{debug, error};
 use mongodb::bson::{doc, Document};
 use mongodb::options::{DeleteOptions, FindOptions};
@@ -9,7 +9,10 @@ use rocket::futures::StreamExt;
 /// A generic Backlog store trait to allow test mocking.
 /// (or swapping the underlying store in the future if I feel like returning to the comfortable land of relational DBs)
 pub trait BacklogStore {
-    fn write_items(&self, new_items: Vec<BacklogItem>) -> impl std::future::Future<Output = bool> + Send;
+    fn write_items(
+        &self,
+        new_items: Vec<BacklogItem>,
+    ) -> impl std::future::Future<Output = bool> + Send;
     fn get_items(
         &self,
         filter: impl Into<Option<Document>>,
