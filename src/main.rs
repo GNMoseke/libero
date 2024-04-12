@@ -1,7 +1,7 @@
-// todo: clean up this import vomit
+// TODO: clean up this import vomit
 #[macro_use]
 extern crate rocket;
-use items::BacklogItem;
+use backlog_items::BacklogItem;
 use log::{error, info};
 use mongodb::{
     bson::doc,
@@ -12,7 +12,7 @@ use rocket::serde::json::{json, Json, Value};
 use rocket::State;
 use storage::{BacklogStore, MongoBacklogStore};
 
-pub mod items;
+pub mod backlog_items;
 pub mod storage;
 
 #[get("/ping")]
@@ -32,7 +32,7 @@ async fn list_backlog_entries(
     filter_field: Option<&str>,
     filter_value: Option<&str>,
     db: &State<MongoBacklogStore>,
-) -> Json<Vec<items::BacklogItem>> {
+) -> Json<Vec<backlog_items::BacklogItem>> {
     // if we're given both parts of a filter, use it. Otherwise pass None.
     let document_matcher = match (filter_field, filter_value) {
         (Some(field), Some(val)) => doc! { field: val }.into(),
@@ -69,6 +69,24 @@ async fn remove_backlog_entry(title: &str, category: &str,  db: &State<MongoBack
     } else {
         json!({ "status": "fail"})
     }
+}
+
+#[get("/refresh")]
+async fn refresh_apod() -> Value {
+    return unimplemented!()
+}
+
+#[post("/favorite")]
+async fn mark_favorite() -> Value {
+    return unimplemented!()
+
+}
+
+#[get("/favorite?<id>")]
+async fn get_favorites(id: Option<&str>) -> Value {
+    // if no Id passed, return full list
+    return unimplemented!()
+
 }
 
 /* TODO Routes for:
@@ -108,6 +126,7 @@ async fn main() -> Result<(), rocket::Error> {
                 remove_backlog_entry
             ],
         )
+        .mount("apod", routes![refresh_apod])
         .manage(
             // TODO: de-hardcode this
             // This is global application state accessible by any handler
