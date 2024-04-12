@@ -50,7 +50,7 @@ pub enum BacklogItemProgress {
     Backlog,
     InProgress,
     Complete,
-    DNF,
+    Dnf,
 }
 
 impl Display for BacklogItemProgress {
@@ -60,7 +60,7 @@ impl Display for BacklogItemProgress {
             Self::Backlog => "Baclog",
             Self::InProgress => "In Progress",
             Self::Complete => "Complete",
-            Self::DNF => "DNF",
+            Self::Dnf => "DNF",
         };
         write!(f, "Progress: {}", as_string)
     }
