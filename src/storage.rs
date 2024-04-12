@@ -1,4 +1,4 @@
-use crate::items::BacklogItem;
+use crate::backlog_items::BacklogItem;
 use log::{debug, error};
 use mongodb::bson::{doc, Document};
 use mongodb::options::{DeleteOptions, FindOptions};
