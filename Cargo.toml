@@ -16,3 +16,8 @@ mongodb = "2.8.1"
 # Raw prints are the enemy of the people
 log = "0.4.21"
 env_logger = "0.8.4"
+
+# TODO: see if I can get away with a smaller dep stack
+attohttpc = "0.28.0"
+serde_json = "1.0"
+image = "0.24.2"
