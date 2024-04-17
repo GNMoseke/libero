@@ -1,6 +1,6 @@
 // Modules
 mod backlog;
-
+mod apod;
 // Local Crates
 use crate::backlog::{BacklogItem, BacklogStore, MongoBacklogStore};
 
@@ -73,6 +73,7 @@ async fn remove_backlog_entry(title: &str, category: &str, db: &State<MongoBackl
 
 #[get("/refresh")]
 async fn refresh_apod() -> Value {
+    // download file and store
     return unimplemented!();
 }
 
