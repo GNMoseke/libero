@@ -74,18 +74,20 @@ async fn remove_backlog_entry(title: &str, category: &str, db: &State<MongoBackl
 #[get("/refresh")]
 async fn refresh_apod() -> Value {
     // download file and store
-    return unimplemented!();
+    apod::download_apod();
+    // TODO: need to create a DB entry here as well so I can mark as favorite and similar
+    json!({"status": "success"})
 }
 
 #[post("/favorite")]
 async fn mark_favorite() -> Value {
-    return unimplemented!();
+    unimplemented!();
 }
 
 #[get("/favorite?<id>")]
 async fn get_favorites(id: Option<&str>) -> Value {
     // if no Id passed, return full list
-    return unimplemented!();
+    unimplemented!();
 }
 
 /* TODO Routes for:
@@ -125,7 +127,7 @@ async fn main() -> Result<(), rocket::Error> {
                 remove_backlog_entry
             ],
         )
-        .mount("apod", routes![refresh_apod])
+        .mount("/apod", routes![refresh_apod])
         .manage(
             // TODO: de-hardcode this
             // This is global application state accessible by any handler
