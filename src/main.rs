@@ -20,8 +20,6 @@ fn ping() -> &'static str {
 // TODO: allow user param to be passed for queries to dispatch to correct mongo db
 // let db = self.client.database(&self.user);
 
-// TODO: move these to their own file/handler crate
-
 // TODO: pagination
 #[get("/?<sort_by>&<filter_field>&<filter_value>")]
 async fn list_backlog_entries(
@@ -74,9 +72,15 @@ async fn remove_backlog_entry(title: &str, category: &str, db: &State<MongoBackl
 #[get("/refresh")]
 async fn refresh_apod() -> Value {
     // download file and store
-    apod::download_apod();
+    match apod::download_apod().await {
+        Ok(_) => json!({"status": "success"}),
+        Err(e) => {
+            error!("failed apod refresh with {e:?}");
+            json!({"status": "fail"})
+        }
+    }
     // TODO: need to create a DB entry here as well so I can mark as favorite and similar
-    json!({"status": "success"})
+    // TODO: return an actual HTTP error code here instead of a 200 with a fail message - rocket seems to make this a PITA
 }
 
 #[post("/favorite")]
