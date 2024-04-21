@@ -137,7 +137,7 @@ async fn main() -> Result<(), rocket::Error> {
             // This is global application state accessible by any handler
             // through the magic of mongo, these will be created automatically if they don't already exist
             MongoBacklogStore {
-                user_collection: mongo_client.database("user1").collection("Backlog"),
+                user_collection: mongo_client.database("khares").collection("Backlog"),
             },
         )
         .launch()
