@@ -33,9 +33,10 @@ pub async fn download_apod() -> Result<(), Box<dyn std::error::Error>> {
         .extension()
         .and_then(OsStr::to_str)
         .ok_or("Unable to parse file type")?;
-    let mut file_path = std::fs::File::create(file_store_dir + "apod-" + &apod.date + file_ext)?;
-    let apod_file = reqwest::get(image_url).await?.text().await?;
-    let _ = std::io::copy(&mut apod_file.as_bytes(), &mut file_path);
+    let mut file_path =
+        std::fs::File::create(file_store_dir + "apod-" + &apod.date + "." + file_ext)?;
+    let mut apod_file = std::io::Cursor::new(reqwest::get(image_url).await?.bytes().await?);
+    let _ = std::io::copy(&mut apod_file, &mut file_path);
     info!("Successfully wrote APOD to {file_path:?}");
     Ok(())
 }
