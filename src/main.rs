@@ -1,6 +1,6 @@
 // Modules
-mod backlog;
 mod apod;
+mod backlog;
 // Local Crates
 use crate::backlog::{BacklogItem, BacklogStore, MongoBacklogStore};
 
