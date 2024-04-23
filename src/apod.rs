@@ -15,6 +15,22 @@ struct Apod {
     url: String,
 }
 
+impl Apod {
+    /// Return on-disk file name
+    fn file_name(&self) -> Result<String, String> {
+        let image_url = self.image_url();
+        let file_ext = std::path::Path::new(&image_url)
+            .extension()
+            .and_then(OsStr::to_str)
+            .ok_or("Unable to parse file type")?;
+        Ok("apod-".to_owned() + &self.date + "." + file_ext)
+    }
+
+    fn image_url(&self) -> String {
+        // attempt hq url first, fallback if necessary
+        return self.hdurl.as_ref().unwrap_or(&self.url).to_string();
+    }
+}
 pub async fn download_apod() -> Result<(), Box<dyn std::error::Error>> {
     info!("Starting Astronomy Picture of the Day download...");
     // get json response, grab high quality image URL
@@ -27,15 +43,8 @@ pub async fn download_apod() -> Result<(), Box<dyn std::error::Error>> {
         return Err("Video currently unsupported.".into());
     }
 
-    // attempt hq url first, fallback if necessary
-    let image_url = apod.hdurl.unwrap_or(apod.url);
-    let file_ext = std::path::Path::new(&image_url)
-        .extension()
-        .and_then(OsStr::to_str)
-        .ok_or("Unable to parse file type")?;
-    let mut file_path =
-        std::fs::File::create(file_store_dir + "apod-" + &apod.date + "." + file_ext)?;
-    let mut apod_file = std::io::Cursor::new(reqwest::get(image_url).await?.bytes().await?);
+    let mut file_path = std::fs::File::create(file_store_dir + &apod.file_name()?)?;
+    let mut apod_file = std::io::Cursor::new(reqwest::get(apod.image_url()).await?.bytes().await?);
     let _ = std::io::copy(&mut apod_file, &mut file_path);
     info!("Successfully wrote APOD to {file_path:?}");
     Ok(())
