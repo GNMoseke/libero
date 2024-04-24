@@ -7,6 +7,7 @@ use crate::backlog::{BacklogItem, BacklogStore, MongoBacklogStore};
 // External Crates
 #[macro_use]
 extern crate rocket;
+use apod::{ApodEntry, ApodStore, MongoApodStore};
 use log::{error, info};
 use mongodb::{bson::doc, options::ClientOptions, Client};
 use rocket::serde::json::{json, Json, Value};
@@ -26,7 +27,7 @@ async fn list_backlog_entries(
     sort_by: Option<&str>,
     filter_field: Option<&str>,
     filter_value: Option<&str>,
-    db: &State<MongoBacklogStore>,
+    db: &State<MongoStores>,
 ) -> Json<Vec<BacklogItem>> {
     // if we're given both parts of a filter, use it. Otherwise pass None.
     let document_matcher = match (filter_field, filter_value) {
@@ -34,7 +35,7 @@ async fn list_backlog_entries(
         _ => None,
     };
 
-    let all_entries = db.get_items(document_matcher, sort_by).await;
+    let all_entries = db.backlog.get_items(document_matcher, sort_by).await;
     match all_entries {
         Ok(entries) => Json(entries),
         Err(err) => {
@@ -46,8 +47,8 @@ async fn list_backlog_entries(
 }
 
 #[post("/item", data = "<new_item>")]
-async fn create_backlog_entry(new_item: Json<BacklogItem>, db: &State<MongoBacklogStore>) -> Value {
-    if db.write_items(vec![new_item.into_inner()]).await {
+async fn create_backlog_entry(new_item: Json<BacklogItem>, db: &State<MongoStores>) -> Value {
+    if db.backlog.write_items(vec![new_item.into_inner()]).await {
         json!({ "status": "success" })
     } else {
         json!({ "status": "fail"})
@@ -57,9 +58,10 @@ async fn create_backlog_entry(new_item: Json<BacklogItem>, db: &State<MongoBackl
 // delete by title and category, which should be a sufficiently unique combination
 // both are required fields for a BacklogItem so all entries should have them
 #[delete("/item?<title>&<category>")]
-async fn remove_backlog_entry(title: &str, category: &str, db: &State<MongoBacklogStore>) -> Value {
+async fn remove_backlog_entry(title: &str, category: &str, db: &State<MongoStores>) -> Value {
     // NOTE: this is case-sensitive (intentionally)
     if db
+        .backlog
         .delete_items(doc! { "title": title, "category": category })
         .await
     {
@@ -70,16 +72,15 @@ async fn remove_backlog_entry(title: &str, category: &str, db: &State<MongoBackl
 }
 
 #[get("/refresh")]
-async fn refresh_apod() -> Value {
+async fn refresh_apod(db: &State<MongoStores>) -> Value {
     // download file and store
-    match apod::download_apod().await {
+    match apod::download_apod(&db.apod).await {
         Ok(_) => json!({"status": "success"}),
         Err(e) => {
             error!("failed apod refresh with {e:?}");
-            json!({"status": "fail"})
+            return json!({"status": "fail"});
         }
     }
-    // TODO: need to create a DB entry here as well so I can mark as favorite and similar
     // TODO: return an actual HTTP error code here instead of a 200 with a fail message - rocket seems to make this a PITA
 }
 
@@ -136,12 +137,22 @@ async fn main() -> Result<(), rocket::Error> {
             // TODO: de-hardcode this
             // This is global application state accessible by any handler
             // through the magic of mongo, these will be created automatically if they don't already exist
-            MongoBacklogStore {
-                user_collection: mongo_client.database("khares").collection("Backlog"),
+            MongoStores {
+                backlog: MongoBacklogStore {
+                    user_collection: mongo_client.database("khares").collection("Backlog"),
+                },
+                apod: MongoApodStore {
+                    user_collection: mongo_client.database("khares").collection("Apod"),
+                },
             },
         )
         .launch()
         .await?;
 
     Ok(())
+}
+
+struct MongoStores {
+    backlog: MongoBacklogStore,
+    apod: MongoApodStore,
 }
