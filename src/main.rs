@@ -7,7 +7,7 @@ use crate::backlog::{BacklogItem, BacklogStore, MongoBacklogStore};
 // External Crates
 #[macro_use]
 extern crate rocket;
-use apod::{ApodEntry, ApodStore, MongoApodStore};
+use apod::{ApodStore, MongoApodStore};
 use log::{error, info};
 use mongodb::{bson::doc, options::ClientOptions, Client};
 use rocket::serde::json::{json, Json, Value};
@@ -78,21 +78,22 @@ async fn refresh_apod(db: &State<MongoStores>) -> Value {
         Ok(_) => json!({"status": "success"}),
         Err(e) => {
             error!("failed apod refresh with {e:?}");
-            return json!({"status": "fail"});
+            json!({"status": "fail"})
         }
     }
     // TODO: return an actual HTTP error code here instead of a 200 with a fail message - rocket seems to make this a PITA
 }
 
-#[post("/favorite")]
-async fn mark_favorite() -> Value {
-    unimplemented!();
-}
-
-#[get("/favorite?<id>")]
-async fn get_favorites(id: Option<&str>) -> Value {
-    // if no Id passed, return full list
-    unimplemented!();
+// date is in the format YYYY-MM-DD
+#[post("/favorite?<date>")]
+async fn mark_favorite(date: &str, db: &State<MongoStores>) -> Value {
+    match db.apod.mark_favorite(date).await {
+        Ok(_) => json!({"status": "success"}),
+        Err(e) => {
+            error!("failed to mark favorite with {e:?}");
+            json!({"status": "fail"})
+        }
+    }
 }
 
 /* TODO Routes for:
@@ -132,7 +133,7 @@ async fn main() -> Result<(), rocket::Error> {
                 remove_backlog_entry
             ],
         )
-        .mount("/apod", routes![refresh_apod])
+        .mount("/apod", routes![refresh_apod, mark_favorite])
         .manage(
             // TODO: de-hardcode this
             // This is global application state accessible by any handler
