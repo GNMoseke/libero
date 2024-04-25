@@ -20,21 +20,6 @@ $ docker run --name khares-mongodb -p 27017:27017 -d mongo:latest
 $ docker run --name khares-mongodb -v /path/on/local:/data/db -p 27017:27017 -d mongo:latest
 ```
 
-## Quick CURL command reference
-```sh
-# post a new entry:
-curl --header "Content-Type: application/json" \
-  --request POST \
-  --data '{"title":"Hades","progress":"Complete","category":"Game"}' \
-  http://localhost:8000/backlog/item
-
-# get all entries
-curl http://localhost:8000/backlog
-
-# Delete an entry by title/genre
-curl --request DELETE "http://localhost:8000/backlog/item?title=Hades&category=Game"
-```
-
 ## Env Config
 - `APOD_API_KEY`: NASA APOD API key, can be generated [here](https://api.nasa.gov/).
 - `APOD_PATH`: Path to store the APOD when downloaded. If not configured defaults to `/tmp/`. Must have a trailing slash
