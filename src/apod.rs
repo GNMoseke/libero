@@ -90,7 +90,11 @@ pub trait ApodStore {
         filter: impl Into<Option<Document>>,
         sort_by: Option<&str>,
     ) -> impl std::future::Future<Output = Result<Vec<ApodEntry>, mongodb::error::Error>>;
+
+    async fn mark_favorite(&self, date: &str) -> Result<(), mongodb::error::Error>;
 }
+
+// TODO: I want to add preview image generation here as well, and some extra get filter functionality
 
 impl ApodStore for MongoApodStore {
     async fn write_entry(&self, apod: ApodEntry) -> bool {
@@ -128,5 +132,17 @@ impl ApodStore for MongoApodStore {
         }
         debug!("Items returned from mongodb: {:?}", items);
         Ok(items)
+    }
+
+    async fn mark_favorite(&self, date: &str) -> Result<(), mongodb::error::Error> {
+        let updated = self.user_collection
+            .update_one(
+                doc! {"date": date},
+                doc! {"$set": doc! {"favorite": true}},
+                None,
+            )
+            .await?;
+            debug!("updated {:?} item", updated.modified_count);
+            Ok(())
     }
 }
