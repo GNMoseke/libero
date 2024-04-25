@@ -9,6 +9,7 @@ use crate::backlog::{BacklogItem, BacklogStore, MongoBacklogStore};
 extern crate rocket;
 use apod::{ApodStore, MongoApodStore};
 use log::{error, info};
+use mongodb::bson::Document;
 use mongodb::{bson::doc, options::ClientOptions, Client};
 use rocket::serde::json::{json, Json, Value};
 use rocket::State;
@@ -30,8 +31,12 @@ async fn list_backlog_entries(
     db: &State<MongoStores>,
 ) -> Json<Vec<BacklogItem>> {
     // if we're given both parts of a filter, use it. Otherwise pass None.
-    let document_matcher = match (filter_field, filter_value) {
-        (Some(field), Some(val)) => doc! { field: val }.into(),
+    let document_matcher: Option<Document> = match (filter_field, filter_value) {
+        (Some(field), Some(val)) => match field {
+            "rating" => doc! { field: val.parse::<i32>().unwrap_or(0) }.into(),
+            "favorite" | "replay" => doc! { field: val.parse::<bool>().unwrap_or(false) }.into(),
+            _ => doc! { field: val }.into(),
+        },
         _ => None,
     };
 
