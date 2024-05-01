@@ -60,6 +60,15 @@ async fn create_backlog_entry(new_item: Json<BacklogItem>, db: &State<MongoStore
     }
 }
 
+#[post("/item/update", data = "<new_item>")]
+async fn update_backlog_entry(new_item: Json<BacklogItem>, db: &State<MongoStores>) -> Value {
+    if db.backlog.update_item(&new_item).await {
+        json!({"status": "success"})
+    } else {
+        json!({"status": "fail"})
+    }
+}
+
 // delete by title and category, which should be a sufficiently unique combination
 // both are required fields for a BacklogItem so all entries should have them
 #[delete("/item?<title>&<category>")]
@@ -135,6 +144,7 @@ async fn main() -> Result<(), rocket::Error> {
             routes![
                 list_backlog_entries,
                 create_backlog_entry,
+                update_backlog_entry,
                 remove_backlog_entry
             ],
         )
