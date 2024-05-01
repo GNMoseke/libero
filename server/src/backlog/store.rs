@@ -13,12 +13,16 @@ pub trait BacklogStore {
         &self,
         new_items: Vec<BacklogItem>,
     ) -> impl std::future::Future<Output = bool> + Send;
+
     fn get_items(
         &self,
         filter: impl Into<Option<Document>>,
         sort_by: Option<&str>,
     ) -> impl std::future::Future<Output = Result<Vec<BacklogItem>, mongodb::error::Error>>;
+
     fn delete_items(&self, filter: Document) -> impl std::future::Future<Output = bool> + Send;
+
+    fn update_item(&self, item: &BacklogItem) -> impl std::future::Future<Output = bool> + Send;
 }
 
 // TODO: this needs to be a client instead of a user collection to support multiple users
@@ -77,6 +81,27 @@ impl BacklogStore for MongoBacklogStore {
             }
             Err(err) => {
                 error!("Issue deleting items from backlog: {}", err);
+                false
+            }
+        }
+    }
+
+    async fn update_item(&self, item: &BacklogItem) -> bool {
+        match self
+            .user_collection
+            .replace_one(
+                doc! {"title": &item.title, "category": item.category.to_string()},
+                item,
+                None,
+            )
+            .await
+        {
+            Ok(_) => {
+                debug!("successfully updated item");
+                true
+            }
+            Err(err) => {
+                error!("Issue updating item: {}", err);
                 false
             }
         }

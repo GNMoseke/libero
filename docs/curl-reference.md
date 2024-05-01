@@ -21,6 +21,13 @@ Delete an entry by title/genre
 curl --request DELETE "http://localhost:8000/backlog/item?title=Hades&category=Game"
 ```
 
+Update an item by title/genre
+```sh
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{"title":"Hades","progress":"Complete","category":"Game","rating":10,"favorite":true,"notes":"Artemis Boons OP"}' \
+  http://localhost:8000/backlog/item/update
+```
 You can of course update an entry by deleting it and then re-adding it
 
 
