@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 
 void main() => runApp(const MyApp());
@@ -13,12 +14,12 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  late Future<List<BacklogItem>> futureItems;
+  //late Future<List<BacklogItem>> futureItems;
 
   @override
   void initState() {
     super.initState();
-    futureItems = getBacklogItems();
+    //futureItems = getBacklogItems();
   }
 
   @override
@@ -29,11 +30,11 @@ class _MyAppState extends State<MyApp> {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Khares'),
-        ),
-        body: Center(
-          child: FutureBuilder<List<BacklogItem>>(
+          appBar: AppBar(
+            title: const Text('Khares'),
+          ),
+          body: Center(
+              child: /*FutureBuilder<List<BacklogItem>>(
             future: futureItems,
             builder: (context, snapshot) {
               if (snapshot.hasData) {
@@ -48,7 +49,71 @@ class _MyAppState extends State<MyApp> {
               // By default, show a loading spinner.
               return const CircularProgressIndicator();
             },
-          ),
+          ),*/
+                  Column(children: testBacklogItems()))),
+    );
+  }
+}
+
+List<BacklogItemCard> testBacklogItems() {
+  return [
+    BacklogItemCard(BacklogItem(
+        category: BacklogItemCategory.game,
+        title: "Hades",
+        progress: BacklogItemProgress.complete,
+        favorite: true,
+        replay: true,
+        notes: "foo",
+        rating: 10,
+        genre: "Fantasy")),
+    BacklogItemCard(BacklogItem(
+        category: BacklogItemCategory.book,
+        title: "The Doors of Stone",
+        progress: BacklogItemProgress.backlog,
+        genre: "Fantasy")),
+    BacklogItemCard(BacklogItem(
+        category: BacklogItemCategory.movie,
+        title: "The Matrix Resurrections",
+        progress: BacklogItemProgress.dnf,
+        genre: "Sci-Fi")),
+    BacklogItemCard(BacklogItem(
+        category: BacklogItemCategory.show,
+        title: "Avatar: The Last Airbender",
+        progress: BacklogItemProgress.inProgress,
+        favorite: true,
+        replay: true,
+        notes: "foo",
+        rating: 10,
+        genre: "Fantasy"))
+  ];
+}
+
+class BacklogItemCard extends StatelessWidget {
+  BacklogItemCard(this.item, {super.key});
+  final BacklogItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Card(
+        color: Colors.blueGrey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            SizedBox(
+              width: 500, // TODO: this should be a relative amount
+              child: Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
+                IconButton(onPressed: () {}, icon: const Icon(Icons.chevron_right)),
+                SizedBox(
+                    width: 450, // TODO this should be some relative amount
+                    child: ListTile(
+                      leading: Icon(item.category.getIcon()),
+                      title: Text(item.title.toUpperCase()),
+                      trailing: Text(item.progress.name.toUpperCase()),
+                    )),
+              ]),
+            )
+          ],
         ),
       ),
     );
@@ -64,7 +129,27 @@ Future<List<BacklogItem>> getBacklogItems() async {
   throw Exception("Failed to load backlog items");
 }
 
-enum BacklogItemCategory { game, movie, book, show }
+enum BacklogItemCategory {
+  game,
+  movie,
+  book,
+  show;
+
+  IconData getIcon() {
+    switch (this) {
+      case BacklogItemCategory.game:
+        return Icons.sports_esports;
+      case BacklogItemCategory.movie:
+        return Icons.movie;
+      case BacklogItemCategory.book:
+        return Icons.book;
+      case BacklogItemCategory.show:
+        return Icons.tv;
+      default:
+        return Icons.question_mark;
+    }
+  }
+}
 
 enum BacklogItemProgress {
   backlog,
