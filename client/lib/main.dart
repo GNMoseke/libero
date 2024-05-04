@@ -63,8 +63,7 @@ List<BacklogItemCard> testBacklogItems() {
         progress: BacklogItemProgress.complete,
         favorite: true,
         replay: true,
-        notes:
-            """
+        notes: """
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
             
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
@@ -128,31 +127,23 @@ class BacklogItemCard extends StatelessWidget {
                   ColoredBox(
                     color: Colors.blueAccent,
                     child: Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
+                      padding: const EdgeInsets.only(top: 12.0, left: 12.0, right: 12.0),
                       child: SizedBox(
                           height: 700,
                           child: DropCapText(
-                            dropCapPadding: const EdgeInsets.only(right: 8.0),
                             item.notes ?? "No notes!",
                             // TODO: can use igdb here for game cover art, openlibrary for books, moviedb, etc
                             dropCap: DropCap(
-                                width: 300,
+                                width: 208,
                                 height: 300,
                                 child: Row(
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.only(bottom: 8.0, right: 8.0, left: 8.0),
-                                      child: ClipRRect(borderRadius: BorderRadius.circular(8.0), child: Image.asset('assets/hades_cover.jpeg')),
+                                      padding: const EdgeInsets.only(bottom: 8.0, right: 8.0),
+                                      child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(8.0),
+                                          child: Image.asset('assets/hades_cover.jpeg')),
                                     ),
-                                    Expanded(
-                                      child: Column(
-                                        children: [
-                                          Text(item.rating != null ? item.rating.toString() : "Unrated",
-                                              style: const TextStyle(
-                                                  fontWeight: FontWeight.bold, fontSize: 48.0, color: Colors.black)),
-                                        ],
-                                      ),
-                                    ) // TODO: would like to make color change with score
                                   ],
                                 )),
                             style: const TextStyle(fontSize: 20),
