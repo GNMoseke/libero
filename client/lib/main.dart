@@ -89,7 +89,7 @@ List<BacklogItemCard> testBacklogItems() {
         favorite: true,
         replay: true,
         notes: "foo",
-        rating: 10,
+        rating: 9,
         genre: "Fantasy"))
   ];
 }
@@ -109,11 +109,34 @@ class BacklogItemCard extends StatelessWidget {
             SizedBox(
               width: 1000, // TODO: this should be a relative amount
               child: ExpansionTile(
+                iconColor: Colors.black,
+                textColor: Colors.black,
                 controlAffinity: ListTileControlAffinity.leading,
                 title: ListTile(
-                  leading: Transform.scale(
-                    scale: 2.0,
-                    child: Icon(item.category.getIcon()),
+                  leading: SizedBox(
+                    width: 100,
+                    height: 50.0,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16.0),
+                      child: Container(
+                        // TODO: change this based on the rating
+                        color: item.rating != null ? Colors.blue : Colors.grey,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Transform.scale(
+                              scale: 1.6,
+                              child: Icon(item.category.getIcon()),
+                            ),
+                            Text(
+                              item.rating != null ? item.rating!.clamp(0, 10).toString() : "N/A",
+                              style:
+                                  TextStyle(fontSize: item.rating != null ? 24.0 : 18.0, fontWeight: FontWeight.bold),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                   title: Center(
                     child: Text(
@@ -121,7 +144,7 @@ class BacklogItemCard extends StatelessWidget {
                       style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24.0, color: Colors.black),
                     ),
                   ),
-                  trailing: Text(item.progress.textual.toUpperCase()),
+                  trailing: Text(item.progress.textual.toUpperCase(), style: TextStyle(color: item.progress.getColor()),),
                 ),
                 children: [
                   ColoredBox(
@@ -198,6 +221,15 @@ enum BacklogItemProgress {
   dnf;
 
   String get textual => this == BacklogItemProgress.inProgress ? "In Progress" : name;
+
+  Color getColor() {
+    switch (this) {
+      case BacklogItemProgress.backlog: return Colors.grey;
+      case BacklogItemProgress.inProgress: return Colors.green;
+      case BacklogItemProgress.complete: return Colors.deepPurple;
+      case BacklogItemProgress.dnf: return Colors.deepOrange;
+    }
+  }
 }
 
 class BacklogItem {
