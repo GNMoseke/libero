@@ -1,7 +1,7 @@
 import 'dart:convert';
-
+// TODO: I wanna get away from using this package if I can
+import 'package:drop_cap_text/drop_cap_text.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 
 void main() => runApp(const MyApp());
@@ -30,11 +30,11 @@ class _MyAppState extends State<MyApp> {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       home: Scaffold(
-          appBar: AppBar(
+          /*appBar: AppBar(
             title: const Text('Khares'),
-          ),
-          body: Center(
-              child: /*FutureBuilder<List<BacklogItem>>(
+          ),*/
+          body: ListView(
+              children: /*FutureBuilder<List<BacklogItem>>(
             future: futureItems,
             builder: (context, snapshot) {
               if (snapshot.hasData) {
@@ -50,7 +50,7 @@ class _MyAppState extends State<MyApp> {
               return const CircularProgressIndicator();
             },
           ),*/
-                  Column(children: testBacklogItems()))),
+                  [Column(children: testBacklogItems())])),
     );
   }
 }
@@ -63,7 +63,14 @@ List<BacklogItemCard> testBacklogItems() {
         progress: BacklogItemProgress.complete,
         favorite: true,
         replay: true,
-        notes: "foo",
+        notes:
+            """
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+            
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+            """,
         rating: 10,
         genre: "Fantasy")),
     BacklogItemCard(BacklogItem(
@@ -101,17 +108,59 @@ class BacklogItemCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             SizedBox(
-              width: 500, // TODO: this should be a relative amount
-              child: Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
-                IconButton(onPressed: () {}, icon: const Icon(Icons.chevron_right)),
-                SizedBox(
-                    width: 450, // TODO this should be some relative amount
-                    child: ListTile(
-                      leading: Icon(item.category.getIcon()),
-                      title: Text(item.title.toUpperCase()),
-                      trailing: Text(item.progress.name.toUpperCase()),
-                    )),
-              ]),
+              width: 1000, // TODO: this should be a relative amount
+              child: ExpansionTile(
+                controlAffinity: ListTileControlAffinity.leading,
+                title: ListTile(
+                  leading: Transform.scale(
+                    scale: 2.0,
+                    child: Icon(item.category.getIcon()),
+                  ),
+                  title: Center(
+                    child: Text(
+                      item.title.toUpperCase(),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24.0, color: Colors.black),
+                    ),
+                  ),
+                  trailing: Text(item.progress.textual.toUpperCase()),
+                ),
+                children: [
+                  ColoredBox(
+                    color: Colors.blueAccent,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: SizedBox(
+                          height: 700,
+                          child: DropCapText(
+                            dropCapPadding: const EdgeInsets.only(right: 8.0),
+                            item.notes ?? "No notes!",
+                            // TODO: can use igdb here for game cover art, openlibrary for books, moviedb, etc
+                            dropCap: DropCap(
+                                width: 300,
+                                height: 300,
+                                child: Row(
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(bottom: 8.0, right: 8.0, left: 8.0),
+                                      child: ClipRRect(borderRadius: BorderRadius.circular(8.0), child: Image.asset('assets/hades_cover.jpeg')),
+                                    ),
+                                    Expanded(
+                                      child: Column(
+                                        children: [
+                                          Text(item.rating != null ? item.rating.toString() : "Unrated",
+                                              style: const TextStyle(
+                                                  fontWeight: FontWeight.bold, fontSize: 48.0, color: Colors.black)),
+                                        ],
+                                      ),
+                                    ) // TODO: would like to make color change with score
+                                  ],
+                                )),
+                            style: const TextStyle(fontSize: 20),
+                          )),
+                    ),
+                  )
+                ],
+              ),
             )
           ],
         ),
@@ -155,7 +204,9 @@ enum BacklogItemProgress {
   backlog,
   inProgress,
   complete,
-  dnf,
+  dnf;
+
+  String get textual => this == BacklogItemProgress.inProgress ? "In Progress" : name;
 }
 
 class BacklogItem {
