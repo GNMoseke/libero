@@ -1,7 +1,10 @@
 import 'dart:convert';
 // TODO: I wanna get away from using this package if I can
 import 'package:drop_cap_text/drop_cap_text.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 
 void main() => runApp(const MyApp());
@@ -54,32 +57,103 @@ class BacklogPane extends StatelessWidget {
             children: [
               SizedBox(
                 width: 1000,
-                child: ListView(
-                    scrollDirection: Axis.vertical,
-                    shrinkWrap: true,
-                    children: /*FutureBuilder<List<BacklogItem>>(
-                  future: futureItems,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      return Text(snapshot.data!
-                          .map((backlogItem) =>
-                              "${backlogItem.category.name.toUpperCase()}: ${backlogItem.title} | ${backlogItem.progress.name} | ${backlogItem.rating ?? "unrated"} ")
-                          .join("\n"));
-                    } else if (snapshot.hasError) {
-                      return Text('${snapshot.error}');
-                    }
-                
-                    // By default, show a loading spinner.
-                    return const CircularProgressIndicator();
-                  },
-                ),*/
-                        [Column(children: testBacklogItems())]),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 70,
+                      child: BacklogMenuBar(),
+                    ),
+                    Expanded(
+                      child: ListView(
+                          scrollDirection: Axis.vertical,
+                          shrinkWrap: true,
+                          children: /*FutureBuilder<List<BacklogItem>>(
+                        future: futureItems,
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            return Text(snapshot.data!
+                                .map((backlogItem) =>
+                                    "${backlogItem.category.name.toUpperCase()}: ${backlogItem.title} | ${backlogItem.progress.name} | ${backlogItem.rating ?? "unrated"} ")
+                                .join("\n"));
+                          } else if (snapshot.hasError) {
+                            return Text('${snapshot.error}');
+                          }
+                      
+                          // By default, show a loading spinner.
+                          return const CircularProgressIndicator();
+                        },
+                      ),*/
+                              [Column(children: testBacklogItems())]),
+                    ),
+                  ],
+                ),
               ),
-              Expanded(child: Center(child: Image.asset('assets/hades_cover.jpeg')))
+              const Expanded(child: Center(child: Placeholder()))
             ],
           ),
         ));
   }
+}
+
+class BacklogMenuBar extends StatelessWidget {
+  const BacklogMenuBar({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        Container(width: 500, child: const SearchBar(hintText: "Title")), //TODO: add onSubmitted for search
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8.0),
+          child: Container(
+            color: Colors.blueGrey,
+            child: DropdownMenu(
+              dropdownMenuEntries: BacklogItemCategory.fullMenuItems,
+              label: const Text(
+                "Type",
+                style: TextStyle(color: Colors.black, fontSize: 14.0),
+              ),
+              onSelected: (value) {
+                // TODO: append filter to only selected type
+              },
+            ),
+          ),
+        ),
+        ClipRRect(
+            borderRadius: BorderRadius.circular(8.0),
+            child: Container(
+                color: Colors.blueGrey,
+                child: DropdownMenu(
+                  dropdownMenuEntries: BacklogItemProgress.fullMenuItems,
+                  label: const Text("Progress", style: TextStyle(color: Colors.black, fontSize: 14.0)),
+                  onSelected: (value) {
+                    // TODO: append filter to only selected progress
+                  },
+                ))),
+        ClipRRect(
+            borderRadius: BorderRadius.circular(8.0),
+            child: Container(
+              color: Colors.blueGrey,
+              child: DropdownMenu(
+                dropdownMenuEntries: ratingMenuEntries(),
+                label: const Text("Rating", style: TextStyle(color: Colors.black, fontSize: 14.0)),
+                onSelected: (value) {
+                  // TODO: append filter to only selected rating
+                },
+              ),
+            )),
+      ],
+    );
+  }
+}
+
+List<DropdownMenuEntry> ratingMenuEntries() {
+  var ret = List.generate(10, (index) => DropdownMenuEntry(value: index + 1, label: (index + 1).toString()));
+  ret.add(const DropdownMenuEntry(value: 0, label: "ALL"));
+  return ret;
 }
 
 List<BacklogItemCard> testBacklogItems() {
@@ -146,9 +220,7 @@ class BacklogItemCard extends StatelessWidget {
               textColor: Colors.black,
               controlAffinity: ListTileControlAffinity.leading,
               title: BacklogItemInfoBar(item: item),
-              children: [
-                BacklogItemDetails(item: item)
-              ],
+              children: [BacklogItemDetails(item: item)],
             ),
           )
         ],
@@ -184,8 +256,7 @@ class BacklogItemDetails extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 8.0, right: 8.0),
                         child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8.0),
-                            child: Image.asset('assets/hades_cover.jpeg')),
+                            borderRadius: BorderRadius.circular(8.0), child: Image.asset('assets/hades_cover.jpeg')),
                       ),
                     ],
                   )),
@@ -223,7 +294,7 @@ class BacklogItemInfoBar extends StatelessWidget {
                   child: Icon(item.category.getIcon()),
                 ),
                 Text(
-                  item.rating != null ? item.rating!.clamp(0, 10).toString() : "N/A",
+                  item.rating != null ? item.rating!.clamp(1, 10).toString() : "N/A",
                   style: TextStyle(fontSize: item.rating != null ? 24.0 : 18.0, fontWeight: FontWeight.bold),
                 )
               ],
@@ -274,6 +345,15 @@ enum BacklogItemCategory {
         return Icons.question_mark;
     }
   }
+
+  static List<DropdownMenuEntry> get fullMenuItems {
+    var ret = BacklogItemCategory.values.map((e) => e.menuItem).toList();
+    ret.add(const DropdownMenuEntry(value: "ALL", label: "ALL", leadingIcon: Icon(Icons.all_inclusive)));
+    return ret;
+  }
+
+  DropdownMenuEntry get menuItem =>
+      DropdownMenuEntry(value: name.toUpperCase(), label: name.toUpperCase(), leadingIcon: Icon(getIcon()));
 }
 
 enum BacklogItemProgress {
@@ -283,6 +363,17 @@ enum BacklogItemProgress {
   dnf;
 
   String get textual => this == BacklogItemProgress.inProgress ? "In Progress" : name;
+
+  DropdownMenuEntry get menuItem => DropdownMenuEntry(
+      value: textual.toUpperCase(),
+      label: textual.toUpperCase(),
+      style: MenuItemButton.styleFrom(foregroundColor: getColor()));
+
+  static List<DropdownMenuEntry> get fullMenuItems {
+    var ret = BacklogItemProgress.values.map((e) => e.menuItem).toList();
+    ret.add(const DropdownMenuEntry(value: "ALL", label: "ALL", leadingIcon: Icon(Icons.all_inclusive)));
+    return ret;
+  }
 
   Color getColor() {
     switch (this) {
