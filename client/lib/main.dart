@@ -29,34 +29,61 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: Scaffold(
-          /*appBar: AppBar(
-            title: const Text('Khares'),
-          ),*/
-          body: ListView(
-              children: /*FutureBuilder<List<BacklogItem>>(
-            future: futureItems,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return Text(snapshot.data!
-                    .map((backlogItem) =>
-                        "${backlogItem.category.name.toUpperCase()}: ${backlogItem.title} | ${backlogItem.progress.name} | ${backlogItem.rating ?? "unrated"} ")
-                    .join("\n"));
-              } else if (snapshot.hasError) {
-                return Text('${snapshot.error}');
-              }
-
-              // By default, show a loading spinner.
-              return const CircularProgressIndicator();
-            },
-          ),*/
-                  [Column(children: testBacklogItems())])),
+      home: const BacklogPane(),
     );
   }
 }
 
+class BacklogPane extends StatelessWidget {
+  const BacklogPane({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        floatingActionButton: IconButton(
+          icon: const Icon(Icons.add_outlined),
+          onPressed: () {},
+        ),
+        backgroundColor: Colors.black12,
+        body: Container(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: 1000,
+                child: ListView(
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    children: /*FutureBuilder<List<BacklogItem>>(
+                  future: futureItems,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      return Text(snapshot.data!
+                          .map((backlogItem) =>
+                              "${backlogItem.category.name.toUpperCase()}: ${backlogItem.title} | ${backlogItem.progress.name} | ${backlogItem.rating ?? "unrated"} ")
+                          .join("\n"));
+                    } else if (snapshot.hasError) {
+                      return Text('${snapshot.error}');
+                    }
+                
+                    // By default, show a loading spinner.
+                    return const CircularProgressIndicator();
+                  },
+                ),*/
+                        [Column(children: testBacklogItems())]),
+              ),
+              Expanded(child: Center(child: Image.asset('assets/hades_cover.jpeg')))
+            ],
+          ),
+        ));
+  }
+}
+
 List<BacklogItemCard> testBacklogItems() {
-  return [
+  var ret = [
     BacklogItemCard(BacklogItem(
         category: BacklogItemCategory.game,
         title: "Hades",
@@ -92,6 +119,13 @@ List<BacklogItemCard> testBacklogItems() {
         rating: 9,
         genre: "Fantasy"))
   ];
+
+  for (var i = 0; i < 30; i++) {
+    ret.add(BacklogItemCard(
+        BacklogItem(category: BacklogItemCategory.game, title: "Foo", progress: BacklogItemProgress.backlog)));
+  }
+
+  return ret;
 }
 
 class BacklogItemCard extends StatelessWidget {
@@ -100,84 +134,84 @@ class BacklogItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Card(
-        color: Colors.blueGrey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            SizedBox(
-              width: 1000, // TODO: this should be a relative amount
-              child: ExpansionTile(
-                iconColor: Colors.black,
-                textColor: Colors.black,
-                controlAffinity: ListTileControlAffinity.leading,
-                title: ListTile(
-                  leading: SizedBox(
-                    width: 100,
-                    height: 50.0,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(16.0),
-                      child: Container(
-                        // TODO: change this based on the rating
-                        color: item.rating != null ? Colors.blue : Colors.grey,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Transform.scale(
-                              scale: 1.6,
-                              child: Icon(item.category.getIcon()),
-                            ),
-                            Text(
-                              item.rating != null ? item.rating!.clamp(0, 10).toString() : "N/A",
-                              style:
-                                  TextStyle(fontSize: item.rating != null ? 24.0 : 18.0, fontWeight: FontWeight.bold),
-                            )
-                          ],
-                        ),
+    return Card(
+      color: Colors.blueGrey,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          SizedBox(
+            width: 1000, // TODO: this should be a relative amount
+            child: ExpansionTile(
+              iconColor: Colors.black,
+              textColor: Colors.black,
+              controlAffinity: ListTileControlAffinity.leading,
+              title: ListTile(
+                leading: SizedBox(
+                  width: 100,
+                  height: 50.0,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16.0),
+                    child: Container(
+                      // TODO: change this based on the rating
+                      color: item.rating != null ? Colors.blue : Colors.grey,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Transform.scale(
+                            scale: 1.6,
+                            child: Icon(item.category.getIcon()),
+                          ),
+                          Text(
+                            item.rating != null ? item.rating!.clamp(0, 10).toString() : "N/A",
+                            style: TextStyle(fontSize: item.rating != null ? 24.0 : 18.0, fontWeight: FontWeight.bold),
+                          )
+                        ],
                       ),
                     ),
                   ),
-                  title: Center(
-                    child: Text(
-                      item.title.toUpperCase(),
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24.0, color: Colors.black),
-                    ),
-                  ),
-                  trailing: Text(item.progress.textual.toUpperCase(), style: TextStyle(color: item.progress.getColor()),),
                 ),
-                children: [
-                  ColoredBox(
-                    color: Colors.blueAccent,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 12.0, left: 12.0, right: 12.0),
-                      child: SizedBox(
-                          height: 700,
-                          child: DropCapText(
-                            item.notes ?? "No notes!",
-                            // TODO: can use igdb here for game cover art, openlibrary for books, moviedb, etc
-                            dropCap: DropCap(
-                                width: 208,
-                                height: 300,
-                                child: Row(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(bottom: 8.0, right: 8.0),
-                                      child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(8.0),
-                                          child: Image.asset('assets/hades_cover.jpeg')),
-                                    ),
-                                  ],
-                                )),
-                            style: const TextStyle(fontSize: 20),
-                          )),
-                    ),
-                  )
-                ],
+                title: Center(
+                  child: Text(
+                    item.title.toUpperCase(),
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24.0, color: Colors.black),
+                  ),
+                ),
+                trailing: Text(
+                  item.progress.textual.toUpperCase(),
+                  style: TextStyle(color: item.progress.getColor()),
+                ),
               ),
-            )
-          ],
-        ),
+              children: [
+                ColoredBox(
+                  color: Colors.blueAccent,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 12.0, left: 12.0, right: 12.0),
+                    child: SizedBox(
+                        height: 700,
+                        child: DropCapText(
+                          item.notes ?? "No notes!",
+                          // TODO: can use igdb here for game cover art, openlibrary for books, moviedb, etc
+                          dropCap: DropCap(
+                              width: 208,
+                              height: 300,
+                              child: Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 8.0, right: 8.0),
+                                    child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(8.0),
+                                        child: Image.asset('assets/hades_cover.jpeg')),
+                                  ),
+                                ],
+                              )),
+                          style: const TextStyle(fontSize: 20),
+                        )),
+                  ),
+                )
+              ],
+            ),
+          )
+        ],
       ),
     );
   }
@@ -224,10 +258,14 @@ enum BacklogItemProgress {
 
   Color getColor() {
     switch (this) {
-      case BacklogItemProgress.backlog: return Colors.grey;
-      case BacklogItemProgress.inProgress: return Colors.green;
-      case BacklogItemProgress.complete: return Colors.deepPurple;
-      case BacklogItemProgress.dnf: return Colors.deepOrange;
+      case BacklogItemProgress.backlog:
+        return Colors.grey;
+      case BacklogItemProgress.inProgress:
+        return Colors.deepPurple;
+      case BacklogItemProgress.complete:
+        return Colors.green;
+      case BacklogItemProgress.dnf:
+        return Colors.deepOrange;
     }
   }
 }
