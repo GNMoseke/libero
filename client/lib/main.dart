@@ -1,10 +1,8 @@
 import 'dart:convert';
+import 'dart:math';
 // TODO: I wanna get away from using this package if I can
 import 'package:drop_cap_text/drop_cap_text.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 
 void main() => runApp(const MyApp());
@@ -150,11 +148,6 @@ class BacklogMenuBar extends StatelessWidget {
   }
 }
 
-List<DropdownMenuEntry> ratingMenuEntries() {
-  var ret = List.generate(10, (index) => DropdownMenuEntry(value: index + 1, label: (index + 1).toString()));
-  ret.add(const DropdownMenuEntry(value: 0, label: "ALL"));
-  return ret;
-}
 
 List<BacklogItemCard> testBacklogItems() {
   var ret = [
@@ -185,22 +178,23 @@ List<BacklogItemCard> testBacklogItems() {
         genre: "Sci-Fi")),
     BacklogItemCard(BacklogItem(
         category: BacklogItemCategory.show,
-        title: "Avatar: The Last Airbender",
+        title: "Caillou",
         progress: BacklogItemProgress.inProgress,
-        favorite: true,
-        replay: true,
+        favorite: false,
+        replay: false,
         notes: "foo",
-        rating: 9,
-        genre: "Fantasy"))
+        rating: 1,
+        genre: "Horror"))
   ];
 
   for (var i = 0; i < 30; i++) {
     ret.add(BacklogItemCard(
-        BacklogItem(category: BacklogItemCategory.game, title: "Foo", progress: BacklogItemProgress.backlog)));
+        BacklogItem(category: BacklogItemCategory.values[Random().nextInt(BacklogItemCategory.values.length)], title: "Foo", progress: BacklogItemProgress.backlog)));
   }
 
   return ret;
 }
+
 
 class BacklogItemCard extends StatelessWidget {
   BacklogItemCard(this.item, {super.key});
@@ -285,7 +279,7 @@ class BacklogItemInfoBar extends StatelessWidget {
           borderRadius: BorderRadius.circular(16.0),
           child: Container(
             // TODO: change this based on the rating
-            color: item.rating != null ? Colors.blue : Colors.grey,
+            color: getRatingColor(item.rating),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -314,6 +308,29 @@ class BacklogItemInfoBar extends StatelessWidget {
       ),
     );
   }
+}
+
+// TODO: color :)
+Color getRatingColor(int? rating) {
+  switch (rating) {
+    case 1: return Colors.red;
+    case 2: return Colors.red;
+    case 3: return Colors.red;
+    case 4: return Colors.red;
+    case 5: return Colors.orange;
+    case 6: return Colors.orange;
+    case 7: return Colors.orange;
+    case 8: return Colors.orange;
+    case 9: return Colors.green;
+    case 10: return Colors.green;
+    default: return Colors.grey;
+  }
+}
+
+List<DropdownMenuEntry> ratingMenuEntries() {
+  var ret = List.generate(10, (index) => DropdownMenuEntry(value: index + 1, label: (index + 1).toString()));
+  ret.add(const DropdownMenuEntry(value: 0, label: "ALL"));
+  return ret;
 }
 
 Future<List<BacklogItem>> getBacklogItems() async {
