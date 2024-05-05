@@ -145,73 +145,101 @@ class BacklogItemCard extends StatelessWidget {
               iconColor: Colors.black,
               textColor: Colors.black,
               controlAffinity: ListTileControlAffinity.leading,
-              title: ListTile(
-                leading: SizedBox(
-                  width: 100,
-                  height: 50.0,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16.0),
-                    child: Container(
-                      // TODO: change this based on the rating
-                      color: item.rating != null ? Colors.blue : Colors.grey,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Transform.scale(
-                            scale: 1.6,
-                            child: Icon(item.category.getIcon()),
-                          ),
-                          Text(
-                            item.rating != null ? item.rating!.clamp(0, 10).toString() : "N/A",
-                            style: TextStyle(fontSize: item.rating != null ? 24.0 : 18.0, fontWeight: FontWeight.bold),
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                title: Center(
-                  child: Text(
-                    item.title.toUpperCase(),
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24.0, color: Colors.black),
-                  ),
-                ),
-                trailing: Text(
-                  item.progress.textual.toUpperCase(),
-                  style: TextStyle(color: item.progress.getColor()),
-                ),
-              ),
+              title: BacklogItemInfoBar(item: item),
               children: [
-                ColoredBox(
-                  color: Colors.blueAccent,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 12.0, left: 12.0, right: 12.0),
-                    child: SizedBox(
-                        height: 700,
-                        child: DropCapText(
-                          item.notes ?? "No notes!",
-                          // TODO: can use igdb here for game cover art, openlibrary for books, moviedb, etc
-                          dropCap: DropCap(
-                              width: 208,
-                              height: 300,
-                              child: Row(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 8.0, right: 8.0),
-                                    child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(8.0),
-                                        child: Image.asset('assets/hades_cover.jpeg')),
-                                  ),
-                                ],
-                              )),
-                          style: const TextStyle(fontSize: 20),
-                        )),
-                  ),
-                )
+                BacklogItemDetails(item: item)
               ],
             ),
           )
         ],
+      ),
+    );
+  }
+}
+
+class BacklogItemDetails extends StatelessWidget {
+  const BacklogItemDetails({
+    super.key,
+    required this.item,
+  });
+
+  final BacklogItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    return ColoredBox(
+      color: Colors.blueAccent,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 12.0, left: 12.0, right: 12.0),
+        child: SizedBox(
+            height: 700,
+            child: DropCapText(
+              item.notes ?? "No notes!",
+              // TODO: can use igdb here for game cover art, openlibrary for books, moviedb, etc
+              dropCap: DropCap(
+                  width: 208,
+                  height: 300,
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0, right: 8.0),
+                        child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8.0),
+                            child: Image.asset('assets/hades_cover.jpeg')),
+                      ),
+                    ],
+                  )),
+              style: const TextStyle(fontSize: 20),
+            )),
+      ),
+    );
+  }
+}
+
+class BacklogItemInfoBar extends StatelessWidget {
+  const BacklogItemInfoBar({
+    super.key,
+    required this.item,
+  });
+
+  final BacklogItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: SizedBox(
+        width: 100,
+        height: 50.0,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16.0),
+          child: Container(
+            // TODO: change this based on the rating
+            color: item.rating != null ? Colors.blue : Colors.grey,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Transform.scale(
+                  scale: 1.6,
+                  child: Icon(item.category.getIcon()),
+                ),
+                Text(
+                  item.rating != null ? item.rating!.clamp(0, 10).toString() : "N/A",
+                  style: TextStyle(fontSize: item.rating != null ? 24.0 : 18.0, fontWeight: FontWeight.bold),
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+      title: Center(
+        child: Text(
+          item.title.toUpperCase(),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24.0, color: Colors.black),
+        ),
+      ),
+      trailing: Text(
+        item.progress.textual.toUpperCase(),
+        style: TextStyle(color: item.progress.getColor()),
       ),
     );
   }
