@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'BacklogModels.dart';
 
@@ -27,13 +28,13 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: colorscheme.base),
       ),
-      home: const BacklogPane(),
+      home: BacklogPane(),
     );
   }
 }
 
 class BacklogPane extends StatelessWidget {
-  const BacklogPane({super.key});
+  final selectedItem = new ValueNotifier<BacklogItem?>(null);
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +77,9 @@ class BacklogPane extends StatelessWidget {
                           return const CircularProgressIndicator();
                         },
                       ),*/
-                              [Column(children: testBacklogItems())]),
+                              [
+                            Column(children: testBacklogItems(selectedItem))
+                          ]),
                     ),
                   ],
                 ),
@@ -89,7 +92,11 @@ class BacklogPane extends StatelessWidget {
                               borderRadius: BorderRadius.circular(12.0),
                               border: Border.all(
                                   color: colorscheme.surface0, width: 2.0)),
-                          child: Text("WIP"))))
+                          child: ValueListenableBuilder<BacklogItem?>(
+                              valueListenable: selectedItem,
+                              builder: (context, value, child) {
+                                return BacklogItemDetails(selectedItem);
+                              }))))
             ],
           ),
         ));
@@ -158,70 +165,85 @@ class BacklogMenuBar extends StatelessWidget {
   }
 }
 
-List<BacklogItemCard> testBacklogItems() {
+List<BacklogItemCard> testBacklogItems(
+    ValueNotifier<BacklogItem?> selectItemNotifier) {
   var ret = [
-    BacklogItemCard(BacklogItem(
-        category: BacklogItemCategory.game,
-        title: "Hades",
-        progress: BacklogItemProgress.complete,
-        favorite: true,
-        replay: true,
-        notes: """
+    BacklogItemCard(
+        BacklogItem(
+            category: BacklogItemCategory.game,
+            title: "Hades",
+            progress: BacklogItemProgress.complete,
+            favorite: true,
+            replay: true,
+            notes: """
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
             
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
             """,
-        rating: 10,
-        genre: "Fantasy")),
-    BacklogItemCard(BacklogItem(
-        category: BacklogItemCategory.book,
-        title: "The Doors of Stone",
-        progress: BacklogItemProgress.backlog,
-        genre: "Fantasy")),
-    BacklogItemCard(BacklogItem(
-        category: BacklogItemCategory.movie,
-        title: "The Matrix Resurrections",
-        progress: BacklogItemProgress.dnf,
-        genre: "Sci-Fi")),
-    BacklogItemCard(BacklogItem(
-        category: BacklogItemCategory.show,
-        title: "Caillou",
-        progress: BacklogItemProgress.inProgress,
-        favorite: false,
-        replay: false,
-        notes: "foo",
-        rating: 1,
-        genre: "Horror"))
+            rating: 10,
+            genre: "Fantasy"),
+        selectItemNotifier: selectItemNotifier),
+    BacklogItemCard(
+        BacklogItem(
+            category: BacklogItemCategory.book,
+            title: "The Doors of Stone",
+            progress: BacklogItemProgress.backlog,
+            genre: "Fantasy"),
+        selectItemNotifier: selectItemNotifier),
+    BacklogItemCard(
+        BacklogItem(
+            category: BacklogItemCategory.movie,
+            title: "The Matrix Resurrections",
+            progress: BacklogItemProgress.dnf,
+            genre: "Sci-Fi"),
+        selectItemNotifier: selectItemNotifier),
+    BacklogItemCard(
+        BacklogItem(
+            category: BacklogItemCategory.show,
+            title: "Caillou",
+            progress: BacklogItemProgress.inProgress,
+            favorite: false,
+            replay: false,
+            notes: "foo",
+            rating: 1,
+            genre: "Horror"),
+        selectItemNotifier: selectItemNotifier)
   ];
 
   for (var i = 0; i < 30; i++) {
-    ret.add(BacklogItemCard(BacklogItem(
-        category: BacklogItemCategory
-            .values[Random().nextInt(BacklogItemCategory.values.length)],
-        title: "Foo",
-        progress: BacklogItemProgress.backlog)));
+    ret.add(BacklogItemCard(
+        BacklogItem(
+            category: BacklogItemCategory
+                .values[Random().nextInt(BacklogItemCategory.values.length)],
+            title: "Foo",
+            progress: BacklogItemProgress.backlog),
+        selectItemNotifier: selectItemNotifier));
   }
 
   return ret;
 }
 
-// class BacklogItemDetails extends StatelessWidget {
+class BacklogItemDetails extends StatelessWidget {
+  final ValueListenable<BacklogItem?> currentItem;
 
-//   @override
-//   Widget build(BuildContext context) {
-//     if (item.value != null) {
-//       return Text(item.value!.title);
-//     }
-//     return const Text("Nada");
-//   }
+  BacklogItemDetails(this.currentItem);
 
-// }
+  @override
+  Widget build(BuildContext context) {
+    if (currentItem.value != null) {
+      return Text(currentItem.value!.title);
+    }
+    return const Text("Nada");
+  }
+}
 
 class BacklogItemCard extends StatelessWidget {
-  BacklogItemCard(this.item, {super.key});
+  const BacklogItemCard(this.item,
+      {super.key, required this.selectItemNotifier});
   final BacklogItem item;
+  final ValueNotifier<BacklogItem?> selectItemNotifier;
 
   @override
   Widget build(BuildContext context) {
@@ -234,7 +256,9 @@ class BacklogItemCard extends StatelessWidget {
               width: 1000, // TODO: this should be a relative amount
               child: ListTile(
                 title: BacklogItemInfoBar(item: item),
-                onTap: () {},
+                onTap: () {
+                  selectItemNotifier.value = item;
+                },
               ) /*ExpansionTile(
               iconColor: Colors.black,
               textColor: Colors.black,
