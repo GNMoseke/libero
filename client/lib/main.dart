@@ -1,7 +1,5 @@
 import 'dart:convert';
 import 'dart:math';
-// TODO: I wanna get away from using this package if I can
-import 'package:drop_cap_text/drop_cap_text.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:catppuccin_flutter/catppuccin_flutter.dart';
@@ -39,9 +37,7 @@ class _MyAppState extends State<MyApp> {
 }
 
 class BacklogPane extends StatelessWidget {
-  const BacklogPane({
-    super.key,
-  });
+  const BacklogPane({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +85,15 @@ class BacklogPane extends StatelessWidget {
                   ],
                 ),
               ),
-              const Expanded(child: Center(child: Placeholder()))
+              Expanded(
+                  child: Center(
+                      child: Container(
+                          key: const Key("backlog-item-details"),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12.0),
+                              border: Border.all(
+                                  color: colorscheme.surface0, width: 2.0)),
+                          child: Text("WIP"))))
             ],
           ),
         ));
@@ -106,7 +110,12 @@ class BacklogMenuBar extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        const SizedBox(width: 500, child: SearchBar(hintText: "Title")), //TODO: add onSubmitted for search
+        SizedBox(
+            width: 500,
+            child: SearchBar(
+              hintText: "Title",
+              backgroundColor: MaterialStatePropertyAll(colorscheme.overlay1),
+            )), //TODO: add onSubmitted for search
         ClipRRect(
           borderRadius: BorderRadius.circular(8.0),
           child: Container(
@@ -129,7 +138,8 @@ class BacklogMenuBar extends StatelessWidget {
                 color: colorscheme.overlay1,
                 child: DropdownMenu(
                   dropdownMenuEntries: BacklogItemProgress.fullMenuItems,
-                  label: const Text("Progress", style: TextStyle(color: Colors.black, fontSize: 14.0)),
+                  label: const Text("Progress",
+                      style: TextStyle(color: Colors.black, fontSize: 14.0)),
                   onSelected: (value) {
                     // TODO: append filter to only selected progress
                   },
@@ -140,7 +150,8 @@ class BacklogMenuBar extends StatelessWidget {
               color: colorscheme.overlay1,
               child: DropdownMenu(
                 dropdownMenuEntries: ratingMenuEntries(),
-                label: const Text("Rating", style: TextStyle(color: Colors.black, fontSize: 14.0)),
+                label: const Text("Rating",
+                    style: TextStyle(color: Colors.black, fontSize: 14.0)),
                 onSelected: (value) {
                   // TODO: append filter to only selected rating
                 },
@@ -150,7 +161,6 @@ class BacklogMenuBar extends StatelessWidget {
     );
   }
 }
-
 
 List<BacklogItemCard> testBacklogItems() {
   var ret = [
@@ -191,13 +201,27 @@ List<BacklogItemCard> testBacklogItems() {
   ];
 
   for (var i = 0; i < 30; i++) {
-    ret.add(BacklogItemCard(
-        BacklogItem(category: BacklogItemCategory.values[Random().nextInt(BacklogItemCategory.values.length)], title: "Foo", progress: BacklogItemProgress.backlog)));
+    ret.add(BacklogItemCard(BacklogItem(
+        category: BacklogItemCategory
+            .values[Random().nextInt(BacklogItemCategory.values.length)],
+        title: "Foo",
+        progress: BacklogItemProgress.backlog)));
   }
 
   return ret;
 }
 
+// class BacklogItemDetails extends StatelessWidget {
+
+//   @override
+//   Widget build(BuildContext context) {
+//     if (item.value != null) {
+//       return Text(item.value!.title);
+//     }
+//     return const Text("Nada");
+//   }
+  
+// }
 
 class BacklogItemCard extends StatelessWidget {
   BacklogItemCard(this.item, {super.key});
@@ -211,54 +235,20 @@ class BacklogItemCard extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           SizedBox(
-            width: 1000, // TODO: this should be a relative amount
-            child: ExpansionTile(
+              width: 1000, // TODO: this should be a relative amount
+              child: ListTile(
+                title: BacklogItemInfoBar(item: item),
+                onTap: ()  {
+                },
+              ) /*ExpansionTile(
               iconColor: Colors.black,
               textColor: Colors.black,
               controlAffinity: ListTileControlAffinity.leading,
               title: BacklogItemInfoBar(item: item),
               children: [BacklogItemDetails(item: item)],
-            ),
-          )
+            ),*/
+              )
         ],
-      ),
-    );
-  }
-}
-
-class BacklogItemDetails extends StatelessWidget {
-  const BacklogItemDetails({
-    super.key,
-    required this.item,
-  });
-
-  final BacklogItem item;
-
-  @override
-  Widget build(BuildContext context) {
-    return ColoredBox(
-      color: Colors.blueAccent,
-      child: Padding(
-        padding: const EdgeInsets.only(top: 12.0, left: 12.0, right: 12.0),
-        child: SizedBox(
-            height: 700,
-            child: DropCapText(
-              item.notes ?? "No notes!",
-              // TODO: can use igdb here for game cover art, openlibrary for books, moviedb, etc
-              dropCap: DropCap(
-                  width: 208,
-                  height: 300,
-                  child: Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 8.0, right: 8.0),
-                        child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8.0), child: Image.asset('assets/hades_cover.jpeg')),
-                      ),
-                    ],
-                  )),
-              style: const TextStyle(fontSize: 20),
-            )),
       ),
     );
   }
@@ -291,8 +281,12 @@ class BacklogItemInfoBar extends StatelessWidget {
                   child: Icon(item.category.getIcon()),
                 ),
                 Text(
-                  item.rating != null ? item.rating!.clamp(1, 10).toString() : "N/A",
-                  style: TextStyle(fontSize: item.rating != null ? 24.0 : 18.0, fontWeight: FontWeight.bold),
+                  item.rating != null
+                      ? item.rating!.clamp(1, 10).toString()
+                      : "N/A",
+                  style: TextStyle(
+                      fontSize: item.rating != null ? 24.0 : 18.0,
+                      fontWeight: FontWeight.bold),
                 )
               ],
             ),
@@ -302,7 +296,8 @@ class BacklogItemInfoBar extends StatelessWidget {
       title: Center(
         child: Text(
           item.title.toUpperCase(),
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 24.0, color: Colors.black),
+          style: const TextStyle(
+              fontWeight: FontWeight.bold, fontSize: 24.0, color: Colors.black),
         ),
       ),
       trailing: Text(
@@ -316,22 +311,36 @@ class BacklogItemInfoBar extends StatelessWidget {
 // TODO: color :)
 Color getRatingColor(int? rating) {
   switch (rating) {
-    case 1: return colorscheme.red;
-    case 2: return colorscheme.red;
-    case 3: return colorscheme.red;
-    case 4: return colorscheme.red;
-    case 5: return colorscheme.peach;
-    case 6: return colorscheme.peach;
-    case 7: return colorscheme.peach;
-    case 8: return colorscheme.peach;
-    case 9: return colorscheme.green;
-    case 10: return colorscheme.green;
-    default: return colorscheme.overlay0;
+    case 1:
+      return colorscheme.red;
+    case 2:
+      return colorscheme.red;
+    case 3:
+      return colorscheme.red;
+    case 4:
+      return colorscheme.red;
+    case 5:
+      return colorscheme.peach;
+    case 6:
+      return colorscheme.peach;
+    case 7:
+      return colorscheme.peach;
+    case 8:
+      return colorscheme.peach;
+    case 9:
+      return colorscheme.green;
+    case 10:
+      return colorscheme.green;
+    default:
+      return colorscheme.overlay0;
   }
 }
 
 List<DropdownMenuEntry> ratingMenuEntries() {
-  var ret = List.generate(10, (index) => DropdownMenuEntry(value: index + 1, label: (index + 1).toString()));
+  var ret = List.generate(
+      10,
+      (index) =>
+          DropdownMenuEntry(value: index + 1, label: (index + 1).toString()));
   ret.add(const DropdownMenuEntry(value: 0, label: "ALL"));
   return ret;
 }
@@ -368,12 +377,15 @@ enum BacklogItemCategory {
 
   static List<DropdownMenuEntry> get fullMenuItems {
     var ret = BacklogItemCategory.values.map((e) => e.menuItem).toList();
-    ret.add(const DropdownMenuEntry(value: "ALL", label: "ALL", leadingIcon: Icon(Icons.all_inclusive)));
+    ret.add(const DropdownMenuEntry(
+        value: "ALL", label: "ALL", leadingIcon: Icon(Icons.all_inclusive)));
     return ret;
   }
 
-  DropdownMenuEntry get menuItem =>
-      DropdownMenuEntry(value: name.toUpperCase(), label: name.toUpperCase(), leadingIcon: Icon(getIcon()));
+  DropdownMenuEntry get menuItem => DropdownMenuEntry(
+      value: name.toUpperCase(),
+      label: name.toUpperCase(),
+      leadingIcon: Icon(getIcon()));
 }
 
 enum BacklogItemProgress {
@@ -382,7 +394,8 @@ enum BacklogItemProgress {
   complete,
   dnf;
 
-  String get textual => this == BacklogItemProgress.inProgress ? "In Progress" : name;
+  String get textual =>
+      this == BacklogItemProgress.inProgress ? "In Progress" : name;
 
   DropdownMenuEntry get menuItem => DropdownMenuEntry(
       value: textual.toUpperCase(),
@@ -391,7 +404,8 @@ enum BacklogItemProgress {
 
   static List<DropdownMenuEntry> get fullMenuItems {
     var ret = BacklogItemProgress.values.map((e) => e.menuItem).toList();
-    ret.add(const DropdownMenuEntry(value: "ALL", label: "ALL", leadingIcon: Icon(Icons.all_inclusive)));
+    ret.add(const DropdownMenuEntry(
+        value: "ALL", label: "ALL", leadingIcon: Icon(Icons.all_inclusive)));
     return ret;
   }
 
@@ -432,9 +446,11 @@ class BacklogItem {
       this.genre});
 
   BacklogItem.fromJson(Map<String, dynamic> json)
-      : category = BacklogItemCategory.values.byName((json['category'] as String).toLowerCase()),
+      : category = BacklogItemCategory.values
+            .byName((json['category'] as String).toLowerCase()),
         title = json['title'] as String,
-        progress = BacklogItemProgress.values.byName((json['progress'] as String).toLowerCase()),
+        progress = BacklogItemProgress.values
+            .byName((json['progress'] as String).toLowerCase()),
         favorite = json['favorite'] as bool?,
         replay = json['replay'] as bool?,
         notes = json['notes'] as String?,
