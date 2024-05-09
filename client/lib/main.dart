@@ -53,7 +53,7 @@ class BacklogPane extends StatelessWidget {
                 width: 1000,
                 child: Column(
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       height: 70,
                       child: BacklogMenuBar(),
                     ),
@@ -85,13 +85,12 @@ class BacklogPane extends StatelessWidget {
                 ),
               ),
               Expanded(
-                  child: Center(
-                      child: Container(
-                          key: const Key("backlog-item-details"),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12.0),
-                              border: Border.all(
-                                  color: colorscheme.surface0, width: 2.0)),
+                  child: Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12.0),
+                          border: Border.all(
+                              color: colorscheme.surface0, width: 2.0)),
+                      child: Center(
                           child: ValueListenableBuilder<BacklogItem?>(
                               valueListenable: selectedItem,
                               builder: (context, value, child) {
