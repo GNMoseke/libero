@@ -11,6 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   http: ^1.2.1
+  catppuccin_flutter: ^1.0.0
 
 dev_dependencies:
   flutter_test:

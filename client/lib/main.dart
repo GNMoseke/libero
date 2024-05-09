@@ -4,6 +4,9 @@ import 'dart:math';
 import 'package:drop_cap_text/drop_cap_text.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:catppuccin_flutter/catppuccin_flutter.dart';
+
+Flavor colorscheme = catppuccin.mocha;
 
 void main() => runApp(const MyApp());
 
@@ -28,7 +31,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'Khares',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: colorscheme.base),
       ),
       home: const BacklogPane(),
     );
@@ -103,11 +106,11 @@ class BacklogMenuBar extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        Container(width: 500, child: const SearchBar(hintText: "Title")), //TODO: add onSubmitted for search
+        const SizedBox(width: 500, child: SearchBar(hintText: "Title")), //TODO: add onSubmitted for search
         ClipRRect(
           borderRadius: BorderRadius.circular(8.0),
           child: Container(
-            color: Colors.blueGrey,
+            color: colorscheme.overlay1,
             child: DropdownMenu(
               dropdownMenuEntries: BacklogItemCategory.fullMenuItems,
               label: const Text(
@@ -123,7 +126,7 @@ class BacklogMenuBar extends StatelessWidget {
         ClipRRect(
             borderRadius: BorderRadius.circular(8.0),
             child: Container(
-                color: Colors.blueGrey,
+                color: colorscheme.overlay1,
                 child: DropdownMenu(
                   dropdownMenuEntries: BacklogItemProgress.fullMenuItems,
                   label: const Text("Progress", style: TextStyle(color: Colors.black, fontSize: 14.0)),
@@ -134,7 +137,7 @@ class BacklogMenuBar extends StatelessWidget {
         ClipRRect(
             borderRadius: BorderRadius.circular(8.0),
             child: Container(
-              color: Colors.blueGrey,
+              color: colorscheme.overlay1,
               child: DropdownMenu(
                 dropdownMenuEntries: ratingMenuEntries(),
                 label: const Text("Rating", style: TextStyle(color: Colors.black, fontSize: 14.0)),
@@ -203,7 +206,7 @@ class BacklogItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: Colors.blueGrey,
+      color: colorscheme.overlay1,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
@@ -313,17 +316,17 @@ class BacklogItemInfoBar extends StatelessWidget {
 // TODO: color :)
 Color getRatingColor(int? rating) {
   switch (rating) {
-    case 1: return Colors.red;
-    case 2: return Colors.red;
-    case 3: return Colors.red;
-    case 4: return Colors.red;
-    case 5: return Colors.orange;
-    case 6: return Colors.orange;
-    case 7: return Colors.orange;
-    case 8: return Colors.orange;
-    case 9: return Colors.green;
-    case 10: return Colors.green;
-    default: return Colors.grey;
+    case 1: return colorscheme.red;
+    case 2: return colorscheme.red;
+    case 3: return colorscheme.red;
+    case 4: return colorscheme.red;
+    case 5: return colorscheme.peach;
+    case 6: return colorscheme.peach;
+    case 7: return colorscheme.peach;
+    case 8: return colorscheme.peach;
+    case 9: return colorscheme.green;
+    case 10: return colorscheme.green;
+    default: return colorscheme.overlay0;
   }
 }
 
@@ -395,13 +398,13 @@ enum BacklogItemProgress {
   Color getColor() {
     switch (this) {
       case BacklogItemProgress.backlog:
-        return Colors.grey;
+        return colorscheme.surface0;
       case BacklogItemProgress.inProgress:
-        return Colors.deepPurple;
+        return colorscheme.peach;
       case BacklogItemProgress.complete:
-        return Colors.green;
+        return colorscheme.green;
       case BacklogItemProgress.dnf:
-        return Colors.deepOrange;
+        return colorscheme.red;
     }
   }
 }
