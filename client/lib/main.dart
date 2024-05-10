@@ -1,6 +1,8 @@
 import 'dart:math';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'BacklogModels.dart';
 
 void main() => runApp(const MyApp());
@@ -39,11 +41,12 @@ class BacklogPane extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        floatingActionButton: IconButton(
+        floatingActionButton: IconButton.filled(
           icon: const Icon(Icons.add_outlined),
           onPressed: () {},
         ),
-        backgroundColor: Colors.black12,
+        floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
+        backgroundColor: colorscheme.base,
         body: Container(
           padding: const EdgeInsets.all(12.0),
           child: Row(
@@ -90,12 +93,14 @@ class BacklogPane extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12.0),
                           border: Border.all(
                               color: colorscheme.surface0, width: 2.0)),
-                      child: Center(
-                          child: ValueListenableBuilder<BacklogItem?>(
-                              valueListenable: selectedItem,
-                              builder: (context, value, child) {
-                                return BacklogItemDetails(selectedItem);
-                              }))))
+                      child: ValueListenableBuilder<BacklogItem?>(
+                          valueListenable: selectedItem,
+                          builder: (context, value, child) {
+                            return Padding(
+                              padding: const EdgeInsets.all(32.0),
+                              child: BacklogItemDetails(selectedItem),
+                            );
+                          })))
             ],
           ),
         ));
@@ -232,9 +237,103 @@ class BacklogItemDetails extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (currentItem.value != null) {
-      return Text(currentItem.value!.title);
+      final item = currentItem.value!;
+      return Scaffold(
+        backgroundColor: colorscheme.base,
+        floatingActionButton:
+            IconButton.filled(onPressed: () {}, icon: const Icon(Icons.edit)),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        body: Column(
+          children: [
+            SizedBox(
+                height: 220,
+                child: Row(
+                  children: [
+                    Row(
+                      children: [
+                        ClipRRect(
+                          borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(8.0),
+                              bottomLeft: Radius.circular(8.0)),
+                          child: Image.asset(
+                            'assets/hades_cover.jpeg',
+                            height: 220,
+                          ),
+                        ),
+                        ClipRRect(
+                          borderRadius: const BorderRadius.only(
+                              topRight: Radius.circular(8.0),
+                              bottomRight: Radius.circular(8.0)),
+                          child: Container(
+                            width: 50,
+                            color: colorscheme.surface1,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Transform.scale(
+                                    scale: 1.3,
+                                    child: Icon(item.category.getIcon())),
+                                if (item.rating != null)
+                                  Text(item.rating?.toString() ?? "N/A",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: getRatingColor(item.rating),
+                                          fontSize: 24.0)),
+                                Transform.scale(
+                                    scale: 1.3,
+                                    child: Icon(
+                                      item.progress.icon,
+                                      color: item.progress.getColor(),
+                                    ))
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 6.0)),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 600,
+                          child: Text(
+                            item.title.toUpperCase(),
+                            // FIXME: this will still overflow without an ellipsis because of the column thing if the text is too long
+                            style: const TextStyle(
+                                color: Colors.black,
+                                fontSize: 64.0,
+                                fontWeight: FontWeight.bold,
+                                fontStyle: FontStyle.italic,
+                                letterSpacing: -0.5,
+                                wordSpacing: -0.5,
+                                height: 1.0),
+                          ),
+                        ),
+                        Text(
+                          item.genre ?? "Unknown",
+                          style: const TextStyle(
+                              fontSize: 16.0, fontStyle: FontStyle.italic),
+                        ),
+                      ],
+                    )
+                  ],
+                )),
+            Divider(
+              thickness: 3.0,
+              color: colorscheme.surface0,
+            ),
+            Text(
+              item.notes ?? "Nothing here!",
+              style: const TextStyle(color: Colors.black),
+            )
+          ],
+        ),
+      );
     }
-    return const Text("Nada");
+    return const Text("No Selection");
   }
 }
 
