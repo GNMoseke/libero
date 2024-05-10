@@ -117,6 +117,19 @@ enum BacklogItemProgress {
         return colorscheme.red;
     }
   }
+
+  IconData get icon {
+    switch (this) {
+      case BacklogItemProgress.backlog:
+        return Icons.history_toggle_off;
+      case BacklogItemProgress.inProgress:
+        return Icons.pending;
+      case BacklogItemProgress.complete:
+        return Icons.check_circle;
+      case BacklogItemProgress.dnf:
+        return Icons.dangerous;
+    }
+  }
 }
 
 class BacklogItem {
