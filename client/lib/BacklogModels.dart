@@ -56,7 +56,7 @@ enum BacklogItemCategory {
   book,
   show;
 
-  IconData getIcon() {
+  IconData get icon {
     switch (this) {
       case BacklogItemCategory.game:
         return Icons.sports_esports;
@@ -81,7 +81,7 @@ enum BacklogItemCategory {
   DropdownMenuEntry get menuItem => DropdownMenuEntry(
       value: name.toUpperCase(),
       label: name.toUpperCase(),
-      leadingIcon: Icon(getIcon()));
+      leadingIcon: Icon(icon));
 }
 
 enum BacklogItemProgress {
@@ -96,7 +96,8 @@ enum BacklogItemProgress {
   DropdownMenuEntry get menuItem => DropdownMenuEntry(
       value: textual.toUpperCase(),
       label: textual.toUpperCase(),
-      style: MenuItemButton.styleFrom(foregroundColor: getColor()));
+    leadingIcon: Icon(icon, color: color),
+      style: MenuItemButton.styleFrom(foregroundColor: color));
 
   static List<DropdownMenuEntry> get fullMenuItems {
     var ret = BacklogItemProgress.values.map((e) => e.menuItem).toList();
@@ -105,7 +106,7 @@ enum BacklogItemProgress {
     return ret;
   }
 
-  Color getColor() {
+  Color get color {
     switch (this) {
       case BacklogItemProgress.backlog:
         return colorscheme.surface0;
