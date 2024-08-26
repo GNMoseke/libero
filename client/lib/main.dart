@@ -1,9 +1,7 @@
-import 'dart:math';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'BacklogModels.dart';
+import 'backlog_models.dart';
+import 'backlog_item_card.dart';
 
 void main() => runApp(const MyApp());
 
@@ -36,16 +34,11 @@ class _MyAppState extends State<MyApp> {
 }
 
 class BacklogPane extends StatelessWidget {
-  final selectedItem = new ValueNotifier<BacklogItem?>(null);
+  final selectedItem = ValueNotifier<BacklogItem?>(null);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        floatingActionButton: IconButton.filled(
-          icon: const Icon(Icons.add_outlined),
-          onPressed: () {},
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
         backgroundColor: colorscheme.base,
         body: Container(
           padding: const EdgeInsets.all(12.0),
@@ -53,17 +46,20 @@ class BacklogPane extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               SizedBox(
-                width: 1000,
+                width: MediaQuery.sizeOf(context).width / 2,
                 child: Column(
                   children: [
                     const SizedBox(
                       height: 70,
                       child: BacklogMenuBar(),
                     ),
-                    Expanded(
-                      child: ListView(
+                    Flexible(
+                      child: GridView.count(
+                          crossAxisSpacing: 8,
+                          mainAxisSpacing: 8,
+                          crossAxisCount: 4,
                           scrollDirection: Axis.vertical,
-                          shrinkWrap: true,
+                          childAspectRatio: 0.65,
                           children: /*FutureBuilder<List<BacklogItem>>(
                         future: futureItems,
                         builder: (context, snapshot) {
@@ -80,9 +76,7 @@ class BacklogPane extends StatelessWidget {
                           return const CircularProgressIndicator();
                         },
                       ),*/
-                              [
-                            Column(children: testBacklogItems(selectedItem))
-                          ]),
+                              testBacklogItems(selectedItem)),
                     ),
                   ],
                 ),
@@ -117,12 +111,25 @@ class BacklogMenuBar extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
+        // Add new button
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8.0),
+          // FIXME: height is a bit wonky on this
+          child: Container(
+              color: colorscheme.overlay1,
+              child: IconButton(
+                  onPressed: () {}, icon: const Icon(Icons.note_add))),
+        ),
+
+        // Search Bar
         SizedBox(
-            width: 500,
+            width: 400,
             child: SearchBar(
               hintText: "Title",
               backgroundColor: MaterialStatePropertyAll(colorscheme.overlay1),
             )), //TODO: add onSubmitted for search
+
+        // Type Filter
         ClipRRect(
           borderRadius: BorderRadius.circular(8.0),
           child: Container(
@@ -139,6 +146,8 @@ class BacklogMenuBar extends StatelessWidget {
             ),
           ),
         ),
+
+        // Progress Filter
         ClipRRect(
             borderRadius: BorderRadius.circular(8.0),
             child: Container(
@@ -151,6 +160,8 @@ class BacklogMenuBar extends StatelessWidget {
                     // TODO: append filter to only selected progress
                   },
                 ))),
+
+        // Rating Filter
         ClipRRect(
             borderRadius: BorderRadius.circular(8.0),
             child: Container(
@@ -169,65 +180,6 @@ class BacklogMenuBar extends StatelessWidget {
   }
 }
 
-List<BacklogItemCard> testBacklogItems(
-    ValueNotifier<BacklogItem?> selectItemNotifier) {
-  var ret = [
-    BacklogItemCard(
-        BacklogItem(
-            category: BacklogItemCategory.game,
-            title: "Hades",
-            progress: BacklogItemProgress.complete,
-            favorite: true,
-            replay: true,
-            notes: """
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-            
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-            """,
-            rating: 10,
-            genre: "Fantasy"),
-        selectItemNotifier: selectItemNotifier),
-    BacklogItemCard(
-        BacklogItem(
-            category: BacklogItemCategory.book,
-            title: "The Doors of Stone",
-            progress: BacklogItemProgress.backlog,
-            genre: "Fantasy"),
-        selectItemNotifier: selectItemNotifier),
-    BacklogItemCard(
-        BacklogItem(
-            category: BacklogItemCategory.movie,
-            title: "The Matrix Resurrections",
-            progress: BacklogItemProgress.dnf,
-            genre: "Sci-Fi"),
-        selectItemNotifier: selectItemNotifier),
-    BacklogItemCard(
-        BacklogItem(
-            category: BacklogItemCategory.show,
-            title: "Caillou",
-            progress: BacklogItemProgress.inProgress,
-            favorite: false,
-            replay: false,
-            notes: "foo",
-            rating: 1,
-            genre: "Horror"),
-        selectItemNotifier: selectItemNotifier)
-  ];
-
-  for (var i = 0; i < 30; i++) {
-    ret.add(BacklogItemCard(
-        BacklogItem(
-            category: BacklogItemCategory
-                .values[Random().nextInt(BacklogItemCategory.values.length)],
-            title: "Foo",
-            progress: BacklogItemProgress.backlog),
-        selectItemNotifier: selectItemNotifier));
-  }
-
-  return ret;
-}
 
 class BacklogItemDetails extends StatelessWidget {
   final ValueListenable<BacklogItem?> currentItem;
@@ -272,7 +224,7 @@ class BacklogItemDetails extends StatelessWidget {
                               children: [
                                 Transform.scale(
                                     scale: 1.3,
-                                    child: Icon(item.category.getIcon())),
+                                    child: Icon(item.category.icon)),
                                 if (item.rating != null)
                                   Text(item.rating?.toString() ?? "N/A",
                                       style: TextStyle(
@@ -283,7 +235,7 @@ class BacklogItemDetails extends StatelessWidget {
                                     scale: 1.3,
                                     child: Icon(
                                       item.progress.icon,
-                                      color: item.progress.getColor(),
+                                      color: item.progress.color,
                                     ))
                               ],
                             ),
@@ -337,90 +289,3 @@ class BacklogItemDetails extends StatelessWidget {
   }
 }
 
-class BacklogItemCard extends StatelessWidget {
-  const BacklogItemCard(this.item,
-      {super.key, required this.selectItemNotifier});
-  final BacklogItem item;
-  final ValueNotifier<BacklogItem?> selectItemNotifier;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      color: colorscheme.overlay1,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          SizedBox(
-              width: 1000, // TODO: this should be a relative amount
-              child: ListTile(
-                title: BacklogItemInfoBar(item: item),
-                onTap: () {
-                  selectItemNotifier.value = item;
-                },
-              ) /*ExpansionTile(
-              iconColor: Colors.black,
-              textColor: Colors.black,
-              controlAffinity: ListTileControlAffinity.leading,
-              title: BacklogItemInfoBar(item: item),
-              children: [BacklogItemDetails(item: item)],
-            ),*/
-              )
-        ],
-      ),
-    );
-  }
-}
-
-class BacklogItemInfoBar extends StatelessWidget {
-  const BacklogItemInfoBar({
-    super.key,
-    required this.item,
-  });
-
-  final BacklogItem item;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: SizedBox(
-        width: 100,
-        height: 50.0,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16.0),
-          child: Container(
-            // TODO: change this based on the rating
-            color: getRatingColor(item.rating),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Transform.scale(
-                  scale: 1.6,
-                  child: Icon(item.category.getIcon()),
-                ),
-                Text(
-                  item.rating != null
-                      ? item.rating!.clamp(1, 10).toString()
-                      : "N/A",
-                  style: TextStyle(
-                      fontSize: item.rating != null ? 24.0 : 18.0,
-                      fontWeight: FontWeight.bold),
-                )
-              ],
-            ),
-          ),
-        ),
-      ),
-      title: Center(
-        child: Text(
-          item.title.toUpperCase(),
-          style: const TextStyle(
-              fontWeight: FontWeight.bold, fontSize: 24.0, color: Colors.black),
-        ),
-      ),
-      trailing: Text(
-        item.progress.textual.toUpperCase(),
-        style: TextStyle(color: item.progress.getColor()),
-      ),
-    );
-  }
-}
