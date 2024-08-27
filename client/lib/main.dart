@@ -180,7 +180,6 @@ class BacklogMenuBar extends StatelessWidget {
   }
 }
 
-
 class BacklogItemDetails extends StatelessWidget {
   final ValueListenable<BacklogItem?> currentItem;
 
@@ -201,48 +200,64 @@ class BacklogItemDetails extends StatelessWidget {
                 height: 220,
                 child: Row(
                   children: [
-                    Row(
-                      children: [
-                        ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(8.0),
-                              bottomLeft: Radius.circular(8.0)),
-                          child: Image.asset(
-                            item.imageAssetPath ?? 'assets/me_at_balls.jpg',
-                            fit: BoxFit.fill,
-                          ),
-                        ),
-                        ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                              topRight: Radius.circular(8.0),
-                              bottomRight: Radius.circular(8.0)),
-                          child: Container(
-                            width: 50,
-                            color: colorscheme.surface1,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Transform.scale(
-                                    scale: 1.3,
-                                    child: Icon(item.category.icon)),
-                                if (item.rating != null)
-                                  Text(item.rating?.toString() ?? "N/A",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: getRatingColor(item.rating),
-                                          fontSize: 24.0)),
-                                Transform.scale(
-                                    scale: 1.3,
-                                    child: Icon(
-                                      item.progress.icon,
-                                      color: item.progress.color,
-                                    ))
-                              ],
+                    Container(
+                      decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black),
+                          borderRadius: BorderRadius.all(Radius.circular(8.0))),
+                      width: 200,
+                      child: Row(
+                        children: [
+                          // Image
+                          Expanded(
+                            child: ClipRRect(
+                              borderRadius: const BorderRadius.only(
+                                  topLeft: Radius.circular(8.0),
+                                  bottomLeft: Radius.circular(8.0)),
+                              child: item.imageAssetPath != null
+                                  ? Image.asset(
+                                      item.imageAssetPath!,
+                                      fit: BoxFit.fill,
+                                    )
+                                  : Icon(Icons.image_rounded),
                             ),
                           ),
-                        ),
-                      ],
+
+                          // Info
+                          ClipRRect(
+                            borderRadius: const BorderRadius.only(
+                                topRight: Radius.circular(8.0),
+                                bottomRight: Radius.circular(8.0)),
+                            child: Container(
+                              width: 50,
+                              color: colorscheme.surface1,
+                              child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Transform.scale(
+                                      scale: 1.3,
+                                      child: Icon(item.category.icon)),
+                                  Transform.scale(
+                                      scale: 1.3,
+                                      child: Icon(
+                                        item.progress.icon,
+                                        color: item.progress.color,
+                                      )),
+                                  if (item.rating != null)
+                                    Text(item.rating?.toString() ?? "N/A",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: getRatingColor(item.rating),
+                                            fontSize: 24.0)),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
+
+                    // Title
                     const Padding(
                         padding: EdgeInsets.symmetric(horizontal: 6.0)),
                     Column(
@@ -267,6 +282,7 @@ class BacklogItemDetails extends StatelessWidget {
                         Text(
                           item.genre ?? "Unknown",
                           style: const TextStyle(
+                          color: Colors.black,
                               fontSize: 16.0, fontStyle: FontStyle.italic),
                         ),
                       ],
@@ -288,4 +304,3 @@ class BacklogItemDetails extends StatelessWidget {
     return const Text("No Selection");
   }
 }
-

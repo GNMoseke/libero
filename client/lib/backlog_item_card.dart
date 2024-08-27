@@ -23,15 +23,32 @@ class BacklogItemCard extends StatelessWidget {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              Ink.image(
-                image: AssetImage(item.imageAssetPath ?? 'assets/me_at_balls.jpg'),
-                fit: BoxFit.fill,
-                child: InkWell(
-                  onTap: () {
-                    selectItemNotifier.value = item;
-                  },
-                ),
-              ),
+              item.imageAssetPath != null
+                  ? Ink.image(
+                      image: AssetImage(item.imageAssetPath!),
+                      fit: BoxFit.fill,
+                      child: InkWell(
+                        onTap: () {
+                          selectItemNotifier.value = item;
+                        },
+                      ),
+                    )
+                  : InkWell(
+                      onTap: () {
+                        selectItemNotifier.value = item;
+                      },
+                                // FIXME: this is necessary to get the inkwell to fill the card. I tried with FittedBox
+                                // and that seemed to not work. There's gotta be a less annoying way to do this.
+                      child: SizedBox(
+                          width: 300,
+                          height: 500,
+                          child: Center(
+                            child: Text(item.title,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    color: Colors.black, fontSize: 32.0)),
+                          )),
+                    ),
               Positioned(
                 bottom: 8.0,
                 child: Container(
@@ -94,7 +111,7 @@ List<BacklogItemCard> testBacklogItems(
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
             """,
             rating: 10,
-                imageAssetPath: 'assets/hades_cover.jpeg',
+            imageAssetPath: 'assets/hades_cover.jpeg',
             genre: "Fantasy"),
         selectItemNotifier: selectItemNotifier),
     BacklogItemCard(
@@ -102,7 +119,7 @@ List<BacklogItemCard> testBacklogItems(
             category: BacklogItemCategory.book,
             title: "The Doors of Stone",
             progress: BacklogItemProgress.backlog,
-                imageAssetPath: 'assets/the_doors_of_stone.jpg',
+            imageAssetPath: 'assets/the_doors_of_stone.jpg',
             genre: "Fantasy"),
         selectItemNotifier: selectItemNotifier),
     BacklogItemCard(
@@ -110,7 +127,7 @@ List<BacklogItemCard> testBacklogItems(
             category: BacklogItemCategory.movie,
             title: "The Matrix Resurrections",
             progress: BacklogItemProgress.dnf,
-                imageAssetPath: 'assets/matrix_resurrections.jpg',
+            imageAssetPath: 'assets/matrix_resurrections.jpg',
             genre: "Sci-Fi"),
         selectItemNotifier: selectItemNotifier),
     BacklogItemCard(
@@ -122,7 +139,7 @@ List<BacklogItemCard> testBacklogItems(
             replay: false,
             notes: "foo",
             rating: 8,
-                imageAssetPath: 'assets/blue_eye_samuri.jpg',
+            imageAssetPath: 'assets/blue_eye_samuri.jpg',
             genre: "Action"),
         selectItemNotifier: selectItemNotifier)
   ];
@@ -132,7 +149,7 @@ List<BacklogItemCard> testBacklogItems(
         BacklogItem(
             category: BacklogItemCategory
                 .values[Random().nextInt(BacklogItemCategory.values.length)],
-            title: "Foo",
+            title: "Foo BarBaz BingBongBap",
             progress: BacklogItemProgress.backlog),
         selectItemNotifier: selectItemNotifier));
   }
