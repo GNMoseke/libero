@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -14,72 +15,62 @@ class BacklogItemCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GridTile(
-      footer: GridTileBar(
-        title: BacklogItemInfoBar(item: item),
-      ),
-      child: Card(
-          color: colorscheme.overlay1,
-          clipBehavior: Clip.antiAliasWithSaveLayer,
-          child: Container(
-            decoration:
-                BoxDecoration(borderRadius: BorderRadius.circular(12.0)),
-            child: Ink.image(
-              image: AssetImage('assets/hades_cover.jpeg'),
-              fit: BoxFit.fill,
-              child: InkWell(
-                onTap: () {
-                  selectItemNotifier.value = item;
-                },
-              ),
-            ),
-          )),
-    );
-  }
-}
-
-class BacklogItemInfoBar extends StatelessWidget {
-  const BacklogItemInfoBar({
-    super.key,
-    required this.item,
-  });
-
-  final BacklogItem item;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: SizedBox(
-        width: 100,
-        height: 50.0,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16.0),
-          child: Container(
-            color: getRatingColor(item.rating),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Transform.scale(
-                  scale: 1.6,
-                  child: Icon(item.category.icon),
+        child: Card(
+      color: colorscheme.overlay1,
+      clipBehavior: Clip.antiAliasWithSaveLayer,
+      child: Container(
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(12.0)),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Ink.image(
+                image: AssetImage(item.imageAssetPath ?? 'assets/me_at_balls.jpg'),
+                fit: BoxFit.fill,
+                child: InkWell(
+                  onTap: () {
+                    selectItemNotifier.value = item;
+                  },
                 ),
-                Text(
-                  item.rating != null
-                      ? item.rating!.clamp(1, 10).toString()
-                      : "N/A",
-                  style: TextStyle(
-                      fontSize: item.rating != null ? 24.0 : 18.0,
-                      fontWeight: FontWeight.bold),
-                )
-              ],
-            ),
-          ),
-        ),
-      ),
-      trailing: Text(
-        item.progress.textual.toUpperCase(),
-        style: TextStyle(color: item.progress.color),
-      ),
-    );
+              ),
+              Positioned(
+                bottom: 8.0,
+                child: Container(
+                  width: 200.0,
+                  height: 40.0,
+                  decoration: BoxDecoration(
+                      color: Color.fromRGBO(
+                          colorscheme.overlay1.red,
+                          colorscheme.overlay1.green,
+                          colorscheme.overlay1.blue,
+                          0.7),
+                      borderRadius: BorderRadius.circular(16.0)),
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Icon(
+                          item.category.icon,
+                          color: Colors.black,
+                        ),
+                        Text(item.progress.textual.toUpperCase(),
+                            style: TextStyle(
+                                color: item.progress.color,
+                                fontWeight: FontWeight.bold)),
+                        Text(
+                          item.rating != null
+                              ? item.rating!.clamp(1, 10).toString()
+                              : "N/A",
+                          style: TextStyle(
+                              color: getRatingColor(item.rating),
+                              fontSize: 24.0,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ]),
+                ),
+              ),
+            ],
+          )),
+    ));
   }
 }
 
@@ -103,6 +94,7 @@ List<BacklogItemCard> testBacklogItems(
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
             """,
             rating: 10,
+                imageAssetPath: 'assets/hades_cover.jpeg',
             genre: "Fantasy"),
         selectItemNotifier: selectItemNotifier),
     BacklogItemCard(
@@ -110,6 +102,7 @@ List<BacklogItemCard> testBacklogItems(
             category: BacklogItemCategory.book,
             title: "The Doors of Stone",
             progress: BacklogItemProgress.backlog,
+                imageAssetPath: 'assets/the_doors_of_stone.jpg',
             genre: "Fantasy"),
         selectItemNotifier: selectItemNotifier),
     BacklogItemCard(
@@ -117,18 +110,20 @@ List<BacklogItemCard> testBacklogItems(
             category: BacklogItemCategory.movie,
             title: "The Matrix Resurrections",
             progress: BacklogItemProgress.dnf,
+                imageAssetPath: 'assets/matrix_resurrections.jpg',
             genre: "Sci-Fi"),
         selectItemNotifier: selectItemNotifier),
     BacklogItemCard(
         BacklogItem(
             category: BacklogItemCategory.show,
-            title: "Caillou",
+            title: "Blue Eye Samurai",
             progress: BacklogItemProgress.inProgress,
             favorite: false,
             replay: false,
             notes: "foo",
-            rating: 1,
-            genre: "Horror"),
+            rating: 8,
+                imageAssetPath: 'assets/blue_eye_samuri.jpg',
+            genre: "Action"),
         selectItemNotifier: selectItemNotifier)
   ];
 

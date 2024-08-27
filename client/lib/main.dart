@@ -208,8 +208,8 @@ class BacklogItemDetails extends StatelessWidget {
                               topLeft: Radius.circular(8.0),
                               bottomLeft: Radius.circular(8.0)),
                           child: Image.asset(
-                            'assets/hades_cover.jpeg',
-                            height: 220,
+                            item.imageAssetPath ?? 'assets/me_at_balls.jpg',
+                            fit: BoxFit.fill,
                           ),
                         ),
                         ClipRRect(

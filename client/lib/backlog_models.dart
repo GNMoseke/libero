@@ -20,15 +20,15 @@ Color getRatingColor(int? rating) {
     case 6:
       return colorscheme.peach;
     case 7:
-      return colorscheme.peach;
+      return Colors.lime;
     case 8:
-      return colorscheme.peach;
+      return Colors.lime;
     case 9:
       return colorscheme.green;
     case 10:
       return colorscheme.green;
     default:
-      return colorscheme.overlay0;
+      return Colors.black;
   }
 }
 
@@ -96,7 +96,7 @@ enum BacklogItemProgress {
   DropdownMenuEntry get menuItem => DropdownMenuEntry(
       value: textual.toUpperCase(),
       label: textual.toUpperCase(),
-    leadingIcon: Icon(icon, color: color),
+      leadingIcon: Icon(icon, color: color),
       style: MenuItemButton.styleFrom(foregroundColor: color));
 
   static List<DropdownMenuEntry> get fullMenuItems {
@@ -142,6 +142,7 @@ class BacklogItem {
   final String? notes;
   final int? rating;
   final String? genre;
+    final String? imageAssetPath;
   // TODO: enable
   // final List<String>? tags
 
@@ -153,7 +154,8 @@ class BacklogItem {
       this.replay,
       this.notes,
       this.rating,
-      this.genre});
+      this.genre,
+    this.imageAssetPath});
 
   BacklogItem.fromJson(Map<String, dynamic> json)
       : category = BacklogItemCategory.values
@@ -165,7 +167,8 @@ class BacklogItem {
         replay = json['replay'] as bool?,
         notes = json['notes'] as String?,
         rating = json['rating'] as int?,
-        genre = json['genre'] as String?;
+        genre = json['genre'] as String?,
+        imageAssetPath = json['imageAssetPath'] as String?;
 
   Map<String, dynamic> toJson() => {
         'category': category.toString(),
@@ -175,6 +178,7 @@ class BacklogItem {
         if (replay != null) 'replay': replay,
         if (notes != null) 'notes': notes,
         if (rating != null) 'rating': rating,
-        if (genre != null) 'genre': genre
+        if (genre != null) 'genre': genre,
+        if (imageAssetPath != null) 'imageAssetPath' : imageAssetPath
       };
 }
