@@ -3,16 +3,16 @@ import 'package:flutter/material.dart';
 import 'backlog_models.dart';
 import 'backlog_item_card.dart';
 
-void main() => runApp(const MyApp());
+void main() => runApp(const Khares());
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class Khares extends StatefulWidget {
+  const Khares({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  State<Khares> createState() => _KharesState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _KharesState extends State<Khares> {
   //late Future<List<BacklogItem>> futureItems;
 
   @override
@@ -282,8 +282,9 @@ class BacklogItemDetails extends StatelessWidget {
                         Text(
                           item.genre ?? "Unknown",
                           style: const TextStyle(
-                          color: Colors.black,
-                              fontSize: 16.0, fontStyle: FontStyle.italic),
+                              color: Colors.black,
+                              fontSize: 16.0,
+                              fontStyle: FontStyle.italic),
                         ),
                       ],
                     )
@@ -293,9 +294,11 @@ class BacklogItemDetails extends StatelessWidget {
               thickness: 3.0,
               color: colorscheme.surface0,
             ),
-            Text(
-              item.notes ?? "Nothing here!",
-              style: const TextStyle(color: Colors.black),
+            SingleChildScrollView(
+              child: Text(
+                item.notes ?? "Nothing here!",
+                style: const TextStyle(color: Colors.black, fontSize: 14.0),
+              ),
             )
           ],
         ),
