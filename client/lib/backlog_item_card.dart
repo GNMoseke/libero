@@ -37,8 +37,8 @@ class BacklogItemCard extends StatelessWidget {
                       onTap: () {
                         selectItemNotifier.value = item;
                       },
-                                // FIXME: this is necessary to get the inkwell to fill the card. I tried with FittedBox
-                                // and that seemed to not work. There's gotta be a less annoying way to do this.
+                      // FIXME: this is necessary to get the inkwell to fill the card. I tried with FittedBox
+                      // and that seemed to not work. There's gotta be a less annoying way to do this.
                       child: SizedBox(
                           width: 300,
                           height: 500,
@@ -89,70 +89,4 @@ class BacklogItemCard extends StatelessWidget {
           )),
     ));
   }
-}
-
-// MARK: tester
-
-List<BacklogItemCard> testBacklogItems(
-    ValueNotifier<BacklogItem?> selectItemNotifier) {
-  var ret = [
-    BacklogItemCard(
-        BacklogItem(
-            category: BacklogItemCategory.game,
-            title: "Hades",
-            progress: BacklogItemProgress.complete,
-            favorite: true,
-            replay: true,
-            notes: """
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-            
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-            """,
-            rating: 10,
-            imageAssetPath: 'assets/hades_cover.jpeg',
-            genre: "Fantasy"),
-        selectItemNotifier: selectItemNotifier),
-    BacklogItemCard(
-        BacklogItem(
-            category: BacklogItemCategory.book,
-            title: "The Doors of Stone",
-            progress: BacklogItemProgress.backlog,
-            imageAssetPath: 'assets/the_doors_of_stone.jpg',
-            genre: "Fantasy"),
-        selectItemNotifier: selectItemNotifier),
-    BacklogItemCard(
-        BacklogItem(
-            category: BacklogItemCategory.movie,
-            title: "The Matrix Resurrections",
-            progress: BacklogItemProgress.dnf,
-            imageAssetPath: 'assets/matrix_resurrections.jpg',
-            genre: "Sci-Fi"),
-        selectItemNotifier: selectItemNotifier),
-    BacklogItemCard(
-        BacklogItem(
-            category: BacklogItemCategory.show,
-            title: "Blue Eye Samurai",
-            progress: BacklogItemProgress.inProgress,
-            favorite: false,
-            replay: false,
-            notes: "foo",
-            rating: 8,
-            imageAssetPath: 'assets/blue_eye_samuri.jpg',
-            genre: "Action"),
-        selectItemNotifier: selectItemNotifier)
-  ];
-
-  for (var i = 0; i < 30; i++) {
-    ret.add(BacklogItemCard(
-        BacklogItem(
-            category: BacklogItemCategory
-                .values[Random().nextInt(BacklogItemCategory.values.length)],
-            title: "Foo BarBaz BingBongBap",
-            progress: BacklogItemProgress.backlog),
-        selectItemNotifier: selectItemNotifier));
-  }
-
-  return ret;
 }

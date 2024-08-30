@@ -86,12 +86,12 @@ enum BacklogItemCategory {
 
 enum BacklogItemProgress {
   backlog,
-  inProgress,
+  inprogress,
   complete,
   dnf;
 
   String get textual =>
-      this == BacklogItemProgress.inProgress ? "In Progress" : name;
+      this == BacklogItemProgress.inprogress ? "In Progress" : name;
 
   DropdownMenuEntry get menuItem => DropdownMenuEntry(
       value: textual.toUpperCase(),
@@ -110,7 +110,7 @@ enum BacklogItemProgress {
     switch (this) {
       case BacklogItemProgress.backlog:
         return colorscheme.surface0;
-      case BacklogItemProgress.inProgress:
+      case BacklogItemProgress.inprogress:
         return colorscheme.peach;
       case BacklogItemProgress.complete:
         return colorscheme.green;
@@ -123,7 +123,7 @@ enum BacklogItemProgress {
     switch (this) {
       case BacklogItemProgress.backlog:
         return Icons.history_toggle_off;
-      case BacklogItemProgress.inProgress:
+      case BacklogItemProgress.inprogress:
         return Icons.pending;
       case BacklogItemProgress.complete:
         return Icons.check_circle;

@@ -1,7 +1,34 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'backlog_models.dart';
 import 'backlog_item_card.dart';
+import 'dart:io';
+
+// TODO: allow this to be given in a config file
+final String dataPath = "${Platform.environment['HOME']}/Documents/khares.json";
+
+// I know this singleton approach is probably icky for state management, but this thing will not be writing/reading
+// data super frequently. Performance tradeoff seems reasonable for ease of use
+class ItemStore {
+  static Future<List<BacklogItem>> readBacklog() async {
+    try {
+      final file = await File(dataPath).readAsString();
+      Iterable list = jsonDecode(file);
+      List<BacklogItem> items = List<BacklogItem>.from(
+          list.map((item) => BacklogItem.fromJson(item)));
+      return Future.value(items);
+    } catch (e) {
+      print(e);
+      return Future.value([]);
+    }
+  }
+
+  static Future<void> writeBacklog() async {
+    return Future.value();
+  }
+}
 
 void main() => runApp(const Khares());
 
@@ -13,12 +40,17 @@ class Khares extends StatefulWidget {
 }
 
 class _KharesState extends State<Khares> {
-  //late Future<List<BacklogItem>> futureItems;
+  List<BacklogItem> _allBacklogItems = [];
 
   @override
   void initState() {
     super.initState();
-    //futureItems = getBacklogItems();
+    ItemStore.readBacklog().then((items) {
+      setState(() {
+        _allBacklogItems = items;
+        print("items: $_allBacklogItems");
+      });
+    });
   }
 
   @override
@@ -28,13 +60,17 @@ class _KharesState extends State<Khares> {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: colorscheme.base),
       ),
-      home: BacklogPane(),
+      home: BacklogPane(
+        backlogItems: _allBacklogItems,
+      ),
     );
   }
 }
 
 class BacklogPane extends StatelessWidget {
+  BacklogPane({super.key, required this.backlogItems});
   final selectedItem = ValueNotifier<BacklogItem?>(null);
+  List<BacklogItem> backlogItems = [];
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +78,7 @@ class BacklogPane extends StatelessWidget {
         backgroundColor: colorscheme.base,
         body: Container(
           padding: const EdgeInsets.all(12.0),
-          child: Row(
+          child: backlogItems.isEmpty ? const Text("Nothing Here!") : Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               SizedBox(
@@ -54,30 +90,16 @@ class BacklogPane extends StatelessWidget {
                       child: BacklogMenuBar(),
                     ),
                     Flexible(
-                      child: GridView.count(
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8,
-                          crossAxisCount: 4,
-                          scrollDirection: Axis.vertical,
-                          childAspectRatio: 0.65,
-                          children: /*FutureBuilder<List<BacklogItem>>(
-                        future: futureItems,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            return Text(snapshot.data!
-                                .map((backlogItem) =>
-                                    "${backlogItem.category.name.toUpperCase()}: ${backlogItem.title} | ${backlogItem.progress.name} | ${backlogItem.rating ?? "unrated"} ")
-                                .join("\n"));
-                          } else if (snapshot.hasError) {
-                            return Text('${snapshot.error}');
-                          }
-                      
-                          // By default, show a loading spinner.
-                          return const CircularProgressIndicator();
-                        },
-                      ),*/
-                              testBacklogItems(selectedItem)),
-                    ),
+                        child: GridView.count(
+                      crossAxisSpacing: 8,
+                      mainAxisSpacing: 8,
+                      crossAxisCount: 4,
+                      scrollDirection: Axis.vertical,
+                      childAspectRatio: 0.65,
+                      children: List<BacklogItemCard>.from(backlogItems.map(
+                          (item) => BacklogItemCard(item,
+                              selectItemNotifier: selectedItem))),
+                    )),
                   ],
                 ),
               ),
