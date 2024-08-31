@@ -10,7 +10,6 @@ dependencies:
   flutter:
     sdk: flutter
   catppuccin_flutter: ^1.0.0
-  provider: ^6.1.2
   uuid: ^4.4.2
 
 dev_dependencies:

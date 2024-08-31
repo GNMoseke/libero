@@ -6,6 +6,7 @@ import 'package:catppuccin_flutter/catppuccin_flutter.dart';
 
 class BacklogListModel extends ChangeNotifier {
   Map<String, BacklogItem> _allItems = {};
+  BacklogItem? _selectedItem;
 
   bool Function(BacklogItem) _titleFilter = (i) => true;
   bool Function(BacklogItem) _categoryFilter = (i) => true;
@@ -14,6 +15,7 @@ class BacklogListModel extends ChangeNotifier {
 
   BacklogListModel(List<BacklogItem> items) {
     _allItems = {for (var item in items) item.id: item};
+    _selectedItem = null;
   }
 
   UnmodifiableListView<BacklogItem> get items {
@@ -27,6 +29,13 @@ class BacklogListModel extends ChangeNotifier {
   UnmodifiableListView<BacklogItem> get allitems =>
       UnmodifiableListView(_allItems.values);
 
+  BacklogItem? get selectedItem => _selectedItem;
+
+  void setSelectedItem(BacklogItem item) {
+    _selectedItem = item;
+    notifyListeners();
+  }
+
   void addOrUpdate(BacklogItem newItem) {
     _allItems.update(newItem.id, (value) => newItem, ifAbsent: () => newItem);
     notifyListeners();
@@ -38,6 +47,7 @@ class BacklogListModel extends ChangeNotifier {
   }
 
   void setTitleFilter(bool Function(BacklogItem) f) {
+        print("title notify");
     _titleFilter = f;
     notifyListeners();
   }
@@ -220,4 +230,16 @@ class BacklogItem {
         if (genre != null) 'genre': genre,
         if (imagePath != null) 'imagePath': imagePath
       };
+}
+
+class Filter {
+  Filter({required this.type, required this.f});
+  final FilterType type;
+  final bool Function(BacklogItem) f;
+}
+enum FilterType {
+  title,
+  category,
+  progress,
+  rating;
 }

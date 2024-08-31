@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:khares_client/backlog_models.dart';
-import 'package:provider/provider.dart';
 
 class BacklogItemEditor extends StatelessWidget {
-  BacklogItem? item;
+  final BacklogItem? item;
+  final ValueChanged<BacklogItem> onSubmitItem;
 
   // FIXME: there's a smarter way to do this but I've had 2 beers
   final BacklogItemCategory? category;
@@ -15,7 +15,7 @@ class BacklogItemEditor extends StatelessWidget {
   final String? genre;
   final String? imagePath;
 
-  BacklogItemEditor({super.key, this.item})
+  BacklogItemEditor({super.key, required this.item, required this.onSubmitItem})
       : title = item?.title,
         category = item?.category,
         progress = item?.progress,
@@ -33,9 +33,7 @@ class BacklogItemEditor extends StatelessWidget {
             height: MediaQuery.sizeOf(context).height * 0.9,
             child: Scaffold(
               backgroundColor: Colors.blueGrey,
-              floatingActionButton: Consumer<BacklogListModel>(
-                  builder: (context, itemList, child) {
-                return IconButton.filled(
+              floatingActionButton: IconButton.filled(
                     onPressed: () {
                       // simple update case
                       if (item case var existing?) {
@@ -49,7 +47,7 @@ class BacklogItemEditor extends StatelessWidget {
                         existing.rating = rating;
                         existing.genre = genre;
                         existing.imagePath = imagePath;
-                        itemList.addOrUpdate(existing);
+                        onSubmitItem(existing);
                       }
                       // create new case
                       else if (title != null &&
@@ -65,7 +63,7 @@ class BacklogItemEditor extends StatelessWidget {
                             rating,
                             genre,
                             imagePath);
-                        itemList.addOrUpdate(newItem);
+                        onSubmitItem(newItem);
                       }
                       // need to fill in fields
                       else {
@@ -74,9 +72,7 @@ class BacklogItemEditor extends StatelessWidget {
                                 content: Text(
                                     "Fill in title, category, and progress")));
                       }
-                    },
-                    icon: Icon(Icons.check));
-              }),
+              }, icon: Icon(Icons.check)),
               body: Column(children: [
                 // Title entry, genre entry
                 Row(children: [Placeholder(), Placeholder()]),

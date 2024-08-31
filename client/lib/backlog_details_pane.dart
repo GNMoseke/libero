@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:khares_client/backlog_card_edit.dart';
 
@@ -6,11 +5,13 @@ import 'backlog_models.dart';
 
 class BacklogDetailsPane extends StatelessWidget {
   const BacklogDetailsPane({
+        required this.item,
+        required this.onSubmitItem,
     super.key,
-    required this.selectedItem,
   });
 
-  final ValueNotifier<BacklogItem?> selectedItem;
+    final BacklogItem? item;
+  final ValueChanged<BacklogItem> onSubmitItem;
 
   @override
   Widget build(BuildContext context) {
@@ -19,45 +20,41 @@ class BacklogDetailsPane extends StatelessWidget {
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12.0),
                 border: Border.all(color: colorscheme.surface0, width: 2.0)),
-            child: ValueListenableBuilder<BacklogItem?>(
-                valueListenable: selectedItem,
-                builder: (context, value, child) {
-                  return Padding(
-                    padding: const EdgeInsets.all(32.0),
-                    child: BacklogItemDetails(selectedItem),
-                  );
-                })));
+            child: Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: BacklogItemDetails(item: item, onSubmitItem: onSubmitItem,),
+            )));
   }
 }
 
 class BacklogItemDetails extends StatelessWidget {
-  final ValueListenable<BacklogItem?> currentItem;
-
-  const BacklogItemDetails(this.currentItem, {super.key});
+  const BacklogItemDetails({required this.item, required this.onSubmitItem, super.key});
+    final BacklogItem? item;
+  final ValueChanged<BacklogItem> onSubmitItem;
 
   @override
   Widget build(BuildContext context) {
-    if (currentItem.value != null) {
-      final item = currentItem.value!;
+    if (item != null) {
       return Scaffold(
         backgroundColor: colorscheme.base,
-        floatingActionButton:
-            IconButton.filled(onPressed: () {
-                        showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return BacklogItemEditor(item: item);
-                            });
-            }, icon: const Icon(Icons.edit)),
+        floatingActionButton: IconButton.filled(
+            onPressed: () {
+              showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return BacklogItemEditor(item: item, onSubmitItem: onSubmitItem,);
+                  });
+            },
+            icon: const Icon(Icons.edit)),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         body: Column(
           children: [
-            _Header(item: item),
+            _Header(item: item!),
             Divider(
               thickness: 3.0,
               color: colorscheme.surface0,
             ),
-            _Body(item: item)
+            _Body(item: item!)
           ],
         ),
       );
