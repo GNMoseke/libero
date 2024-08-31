@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 import 'backlog_details_pane.dart';
 import 'backlog_list_pane.dart';
@@ -33,25 +32,8 @@ class ItemStore {
 
 void main() => runApp(const Khares());
 
-class Khares extends StatefulWidget {
+class Khares extends StatelessWidget {
   const Khares({super.key});
-
-  @override
-  State<Khares> createState() => _KharesState();
-}
-
-class _KharesState extends State<Khares> {
-  List<BacklogItem> _allBacklogItems = [];
-
-  @override
-  void initState() {
-    super.initState();
-    ItemStore.readBacklog().then((items) {
-      setState(() {
-        _allBacklogItems = items;
-      });
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,18 +42,74 @@ class _KharesState extends State<Khares> {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: colorscheme.base),
       ),
-      home: BacklogView(
-        allBacklogItems: _allBacklogItems,
-      ),
+      home: FutureBuilder(
+          future: ItemStore.readBacklog(),
+          builder: (context, items) {
+            if (items.hasData) {
+              return BacklogView(allItems: items.data!);
+            }
+            return const Text(
+              "Loading...",
+              style: TextStyle(color: Colors.red),
+            );
+          }),
     );
   }
 }
 
-class BacklogView extends StatelessWidget {
-  BacklogView({super.key, required this.allBacklogItems});
-  final selectedItem = ValueNotifier<BacklogItem?>(null);
 
-  final List<BacklogItem> allBacklogItems;
+class BacklogViewState extends State<BacklogView> {
+  Map<String, BacklogItem> allItems;
+  List<BacklogItem> filteredItems;
+  BacklogItem? selectedItem;
+  bool Function(BacklogItem) _titleFilter = (i) => true;
+  bool Function(BacklogItem) _categoryFilter = (i) => true;
+  bool Function(BacklogItem) _progressFilter = (i) => true;
+  bool Function(BacklogItem) _ratingFilter = (i) => true;
+
+  BacklogViewState({required this.allItems})
+      : filteredItems = allItems.values.toList();
+
+  void addOrUpdate(BacklogItem newItem) {
+    setState(() {
+      allItems.update(newItem.id, (value) => newItem, ifAbsent: () => newItem);
+    });
+  }
+
+  void remove(BacklogItem item) {
+    setState(() {
+      allItems.remove(item.id);
+    });
+  }
+
+  void applyFilter(Filter filter) {
+    final f = filter.f;
+    switch (filter.type) {
+      case FilterType.title:
+        _titleFilter = f;
+      case FilterType.category:
+        _categoryFilter = f;
+      case FilterType.progress:
+        _progressFilter = f;
+      case FilterType.rating:
+        _ratingFilter = f;
+    }
+    setState(() {
+      filteredItems = allItems.values
+          .where((item) =>
+              _titleFilter(item) &&
+              _categoryFilter(item) &&
+              _progressFilter(item) &&
+              _ratingFilter(item))
+          .toList();
+    });
+  }
+
+  void setSelectedItem(BacklogItem newItem) {
+    setState(() {
+      selectedItem = newItem;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,17 +117,31 @@ class BacklogView extends StatelessWidget {
         backgroundColor: colorscheme.base,
         body: Container(
           padding: const EdgeInsets.all(12.0),
-          child: allBacklogItems.isEmpty
-              ? const Text("Nothing Here!")
-              : Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    ChangeNotifierProvider(
-                        create: (context) => BacklogListModel(allBacklogItems),
-                        child: BacklogListPane(selectedItem: selectedItem)),
-                    BacklogDetailsPane(selectedItem: selectedItem)
-                  ],
-                ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              BacklogListPane(
+                allItems: allItems.values.toList(),
+                filteredItems: filteredItems,
+                onApplyFilter: applyFilter,
+                onSelectItem: setSelectedItem,
+                onSubmitItem: addOrUpdate,
+              ),
+              BacklogDetailsPane(
+                item: selectedItem,
+                onSubmitItem: addOrUpdate,
+              )
+            ],
+          ),
         ));
   }
+}
+
+class BacklogView extends StatefulWidget {
+  const BacklogView({super.key, required this.allItems});
+  final List<BacklogItem> allItems;
+
+  @override
+  BacklogViewState createState() =>
+      BacklogViewState(allItems: {for (var item in allItems) item.id: item});
 }

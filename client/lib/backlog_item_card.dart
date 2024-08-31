@@ -1,16 +1,12 @@
-import 'dart:math';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-
 import 'backlog_models.dart';
 
 class BacklogItemCard extends StatelessWidget {
-  const BacklogItemCard(this.item,
-      {super.key, required this.selectItemNotifier});
+  const BacklogItemCard(
+      {required this.item, required this.onSelectItem, super.key});
   final BacklogItem item;
-  final ValueNotifier<BacklogItem?> selectItemNotifier;
+
+  final ValueChanged<BacklogItem> onSelectItem;
 
   @override
   Widget build(BuildContext context) {
@@ -29,13 +25,13 @@ class BacklogItemCard extends StatelessWidget {
                       fit: BoxFit.fill,
                       child: InkWell(
                         onTap: () {
-                          selectItemNotifier.value = item;
+                                        onSelectItem(item);
                         },
                       ),
                     )
                   : InkWell(
                       onTap: () {
-                        selectItemNotifier.value = item;
+                        onSelectItem(item);
                       },
                       // FIXME: this is necessary to get the inkwell to fill the card. I tried with FittedBox
                       // and that seemed to not work. There's gotta be a less annoying way to do this.
