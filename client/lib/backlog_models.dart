@@ -4,106 +4,51 @@ import 'package:uuid/uuid.dart';
 import 'package:flutter/material.dart';
 import 'package:catppuccin_flutter/catppuccin_flutter.dart';
 
-class BacklogListModel extends ChangeNotifier {
-  Map<String, BacklogItem> _allItems = {};
-  BacklogItem? _selectedItem;
-
-  bool Function(BacklogItem) _titleFilter = (i) => true;
-  bool Function(BacklogItem) _categoryFilter = (i) => true;
-  bool Function(BacklogItem) _progressFilter = (i) => true;
-  bool Function(BacklogItem) _ratingFilter = (i) => true;
-
-  BacklogListModel(List<BacklogItem> items) {
-    _allItems = {for (var item in items) item.id: item};
-    _selectedItem = null;
-  }
-
-  UnmodifiableListView<BacklogItem> get items {
-    return UnmodifiableListView(_allItems.values.where((item) =>
-        _titleFilter(item) &&
-        _categoryFilter(item) &&
-        _progressFilter(item) &&
-        _ratingFilter(item)));
-  }
-
-  UnmodifiableListView<BacklogItem> get allitems =>
-      UnmodifiableListView(_allItems.values);
-
-  BacklogItem? get selectedItem => _selectedItem;
-
-  void setSelectedItem(BacklogItem item) {
-    _selectedItem = item;
-    notifyListeners();
-  }
-
-  void addOrUpdate(BacklogItem newItem) {
-    _allItems.update(newItem.id, (value) => newItem, ifAbsent: () => newItem);
-    notifyListeners();
-  }
-
-  void remove(BacklogItem toRemove) {
-    _allItems.remove(toRemove.id);
-    notifyListeners();
-  }
-
-  void setTitleFilter(bool Function(BacklogItem) f) {
-        print("title notify");
-    _titleFilter = f;
-    notifyListeners();
-  }
-
-  void setCategoryFilter(bool Function(BacklogItem) f) {
-    _categoryFilter = f;
-    notifyListeners();
-  }
-
-  void setProgressFilter(bool Function(BacklogItem) f) {
-    _progressFilter = f;
-    notifyListeners();
-  }
-
-  void setRatingFilter(bool Function(BacklogItem) f) {
-    _ratingFilter = f;
-    notifyListeners();
-  }
-}
-
 Flavor colorscheme = catppuccin.mocha;
 
-Color getRatingColor(int? rating) {
-  switch (rating) {
-    case 1:
-      return colorscheme.red;
-    case 2:
-      return colorscheme.red;
-    case 3:
-      return colorscheme.red;
-    case 4:
-      return colorscheme.red;
-    case 5:
-      return colorscheme.peach;
-    case 6:
-      return colorscheme.peach;
-    case 7:
-      return Colors.lime;
-    case 8:
-      return Colors.lime;
-    case 9:
-      return colorscheme.green;
-    case 10:
-      return colorscheme.green;
-    default:
-      return Colors.black;
-  }
-}
+class BacklogItem {
+  // uses UUIDs
+  final String id;
+  BacklogItemCategory category;
+  String title;
+  BacklogItemProgress progress;
+  bool? favorite;
+  bool? replay;
+  String? notes;
+  int? rating;
+  String? genre;
+  String? imagePath;
 
-List<DropdownMenuEntry<int>> ratingMenuEntries() {
-  var ret = List.generate(
-      10,
-      (index) =>
-          DropdownMenuEntry(value: index + 1, label: (index + 1).toString()));
-  ret.add(const DropdownMenuEntry(value: 0, label: "ALL"));
-  return ret;
+  BacklogItem(this.category, this.title, this.progress, this.favorite,
+      this.replay, this.notes, this.rating, this.genre, this.imagePath)
+      : id = const Uuid().v4();
+
+  BacklogItem.fromJson(Map<String, dynamic> json)
+      : id = json['id'] as String,
+        category = BacklogItemCategory.values
+            .byName((json['category'] as String).toLowerCase()),
+        title = json['title'] as String,
+        progress = BacklogItemProgress.values
+            .byName((json['progress'] as String).toLowerCase()),
+        favorite = json['favorite'] as bool?,
+        replay = json['replay'] as bool?,
+        notes = json['notes'] as String?,
+        rating = json['rating'] as int?,
+        genre = json['genre'] as String?,
+        imagePath = json['imagePath'] as String?;
+
+  Map<String, dynamic> toJson() => {
+        'id': id.toString(),
+        'category': category.toString(),
+        'title': title,
+        'progress': progress.toString(),
+        if (favorite != null) 'favorite': favorite,
+        if (replay != null) 'replay': replay,
+        if (notes != null) 'notes': notes,
+        if (rating != null) 'rating': rating,
+        if (genre != null) 'genre': genre,
+        if (imagePath != null) 'imagePath': imagePath
+      };
 }
 
 enum BacklogItemCategory {
@@ -187,59 +132,51 @@ enum BacklogItemProgress {
   }
 }
 
-class BacklogItem {
-  // uses UUIDs
-  final String id;
-  BacklogItemCategory category;
-  String title;
-  BacklogItemProgress progress;
-  bool? favorite;
-  bool? replay;
-  String? notes;
-  int? rating;
-  String? genre;
-  String? imagePath;
-
-  BacklogItem(this.category, this.title, this.progress, this.favorite,
-      this.replay, this.notes, this.rating, this.genre, this.imagePath)
-      : id = const Uuid().v4();
-
-  BacklogItem.fromJson(Map<String, dynamic> json)
-      : id = json['id'] as String,
-        category = BacklogItemCategory.values
-            .byName((json['category'] as String).toLowerCase()),
-        title = json['title'] as String,
-        progress = BacklogItemProgress.values
-            .byName((json['progress'] as String).toLowerCase()),
-        favorite = json['favorite'] as bool?,
-        replay = json['replay'] as bool?,
-        notes = json['notes'] as String?,
-        rating = json['rating'] as int?,
-        genre = json['genre'] as String?,
-        imagePath = json['imagePath'] as String?;
-
-  Map<String, dynamic> toJson() => {
-        'id': id.toString(),
-        'category': category.toString(),
-        'title': title,
-        'progress': progress.toString(),
-        if (favorite != null) 'favorite': favorite,
-        if (replay != null) 'replay': replay,
-        if (notes != null) 'notes': notes,
-        if (rating != null) 'rating': rating,
-        if (genre != null) 'genre': genre,
-        if (imagePath != null) 'imagePath': imagePath
-      };
-}
-
 class Filter {
   Filter({required this.type, required this.f});
   final FilterType type;
   final bool Function(BacklogItem) f;
 }
+
 enum FilterType {
   title,
   category,
   progress,
   rating;
+}
+
+Color getRatingColor(int? rating) {
+  switch (rating) {
+    case 1:
+      return colorscheme.red;
+    case 2:
+      return colorscheme.red;
+    case 3:
+      return colorscheme.red;
+    case 4:
+      return colorscheme.red;
+    case 5:
+      return colorscheme.peach;
+    case 6:
+      return colorscheme.peach;
+    case 7:
+      return Colors.lime;
+    case 8:
+      return Colors.lime;
+    case 9:
+      return colorscheme.green;
+    case 10:
+      return colorscheme.green;
+    default:
+      return Colors.black;
+  }
+}
+
+List<DropdownMenuEntry<int>> ratingMenuEntries() {
+  var ret = List.generate(
+      10,
+      (index) =>
+          DropdownMenuEntry(value: index + 1, label: (index + 1).toString()));
+  ret.add(const DropdownMenuEntry(value: 0, label: "ALL"));
+  return ret;
 }
