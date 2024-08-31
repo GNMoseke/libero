@@ -1,7 +1,9 @@
+import 'dart:collection';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'backlog_models.dart';
 import 'backlog_item_card.dart';
 import 'dart:io';
@@ -20,7 +22,6 @@ class ItemStore {
           list.map((item) => BacklogItem.fromJson(item)));
       return Future.value(items);
     } catch (e) {
-      print(e);
       return Future.value([]);
     }
   }
@@ -48,7 +49,6 @@ class _KharesState extends State<Khares> {
     ItemStore.readBacklog().then((items) {
       setState(() {
         _allBacklogItems = items;
-        print("items: $_allBacklogItems");
       });
     });
   }
@@ -60,17 +60,18 @@ class _KharesState extends State<Khares> {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: colorscheme.base),
       ),
-      home: BacklogPane(
-        backlogItems: _allBacklogItems,
+      home: BacklogView(
+        allBacklogItems: _allBacklogItems,
       ),
     );
   }
 }
 
-class BacklogPane extends StatelessWidget {
-  BacklogPane({super.key, required this.backlogItems});
+class BacklogView extends StatelessWidget {
+  BacklogView({super.key, required this.allBacklogItems});
   final selectedItem = ValueNotifier<BacklogItem?>(null);
-  List<BacklogItem> backlogItems = [];
+
+  final List<BacklogItem> allBacklogItems;
 
   @override
   Widget build(BuildContext context) {
@@ -78,48 +79,81 @@ class BacklogPane extends StatelessWidget {
         backgroundColor: colorscheme.base,
         body: Container(
           padding: const EdgeInsets.all(12.0),
-          child: backlogItems.isEmpty ? const Text("Nothing Here!") : Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: MediaQuery.sizeOf(context).width / 2,
-                child: Column(
+          child: allBacklogItems.isEmpty
+              ? const Text("Nothing Here!")
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    const SizedBox(
-                      height: 70,
-                      child: BacklogMenuBar(),
-                    ),
-                    Flexible(
-                        child: GridView.count(
-                      crossAxisSpacing: 8,
-                      mainAxisSpacing: 8,
-                      crossAxisCount: 4,
-                      scrollDirection: Axis.vertical,
-                      childAspectRatio: 0.65,
-                      children: List<BacklogItemCard>.from(backlogItems.map(
-                          (item) => BacklogItemCard(item,
-                              selectItemNotifier: selectedItem))),
-                    )),
+                    ChangeNotifierProvider(
+                        create: (context) => BacklogListModel(allBacklogItems),
+                        child: BacklogListPane(selectedItem: selectedItem)),
+                    BacklogDetailsPane(selectedItem: selectedItem)
                   ],
                 ),
-              ),
-              Expanded(
-                  child: Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12.0),
-                          border: Border.all(
-                              color: colorscheme.surface0, width: 2.0)),
-                      child: ValueListenableBuilder<BacklogItem?>(
-                          valueListenable: selectedItem,
-                          builder: (context, value, child) {
-                            return Padding(
-                              padding: const EdgeInsets.all(32.0),
-                              child: BacklogItemDetails(selectedItem),
-                            );
-                          })))
-            ],
-          ),
         ));
+  }
+}
+
+class BacklogDetailsPane extends StatelessWidget {
+  const BacklogDetailsPane({
+    super.key,
+    required this.selectedItem,
+  });
+
+  final ValueNotifier<BacklogItem?> selectedItem;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+        child: Container(
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12.0),
+                border: Border.all(color: colorscheme.surface0, width: 2.0)),
+            child: ValueListenableBuilder<BacklogItem?>(
+                valueListenable: selectedItem,
+                builder: (context, value, child) {
+                  return Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: BacklogItemDetails(selectedItem),
+                  );
+                })));
+  }
+}
+
+class BacklogListPane extends StatelessWidget {
+  const BacklogListPane({
+    super.key,
+    required this.selectedItem,
+  });
+
+  final ValueNotifier<BacklogItem?> selectedItem;
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<BacklogListModel>(builder: (context, itemList, child) {
+      return SizedBox(
+          width: MediaQuery.sizeOf(context).width / 2,
+          child: Column(
+            children: [
+              const SizedBox(
+                height: 70,
+                child: BacklogMenuBar(),
+              ),
+              Flexible(
+                  child: GridView.count(
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
+                crossAxisCount: 4,
+                scrollDirection: Axis.vertical,
+                childAspectRatio: 0.65,
+                children: List<BacklogItemCard>.from(itemList.items.map((item) {
+                  return BacklogItemCard(item,
+                      selectItemNotifier: selectedItem);
+                })),
+              )),
+            ],
+          ));
+    });
   }
 }
 
@@ -130,75 +164,89 @@ class BacklogMenuBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        // Add new button
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8.0),
-          // FIXME: height is a bit wonky on this
-          child: Container(
-              color: colorscheme.overlay1,
-              child: IconButton(
-                  onPressed: () {}, icon: const Icon(Icons.note_add))),
-        ),
-
-        // Search Bar
-        SizedBox(
-            width: 400,
-            child: SearchBar(
-              hintText: "Title",
-              backgroundColor: MaterialStatePropertyAll(colorscheme.overlay1),
-            )), //TODO: add onSubmitted for search
-
-        // Type Filter
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8.0),
-          child: Container(
-            color: colorscheme.overlay1,
-            child: DropdownMenu(
-              dropdownMenuEntries: BacklogItemCategory.fullMenuItems,
-              label: const Text(
-                "Type",
-                style: TextStyle(color: Colors.black, fontSize: 14.0),
-              ),
-              onSelected: (value) {
-                // TODO: append filter to only selected type
-              },
-            ),
-          ),
-        ),
-
-        // Progress Filter
-        ClipRRect(
+    return Consumer<BacklogListModel>(builder: (context, itemList, child) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          // Add new button
+          ClipRRect(
             borderRadius: BorderRadius.circular(8.0),
+            // FIXME: height is a bit wonky on this
             child: Container(
                 color: colorscheme.overlay1,
-                child: DropdownMenu(
-                  dropdownMenuEntries: BacklogItemProgress.fullMenuItems,
-                  label: const Text("Progress",
-                      style: TextStyle(color: Colors.black, fontSize: 14.0)),
-                  onSelected: (value) {
-                    // TODO: append filter to only selected progress
-                  },
-                ))),
+                child: IconButton(
+                    onPressed: () {}, icon: const Icon(Icons.note_add))),
+          ),
 
-        // Rating Filter
-        ClipRRect(
+          // Search Bar
+          SizedBox(
+              width: 400,
+              child: SearchBar(
+                hintText: "Title",
+                backgroundColor: MaterialStatePropertyAll(colorscheme.overlay1),
+                onChanged: (text) {
+                  itemList.setTitleFilter((i) =>
+                      i.title.toLowerCase().contains(text.toLowerCase()));
+                },
+              )),
+
+          // Category Filter
+          ClipRRect(
             borderRadius: BorderRadius.circular(8.0),
             child: Container(
               color: colorscheme.overlay1,
-              child: DropdownMenu(
-                dropdownMenuEntries: ratingMenuEntries(),
-                label: const Text("Rating",
-                    style: TextStyle(color: Colors.black, fontSize: 14.0)),
+              child: DropdownMenu<BacklogItemCategory>(
+                dropdownMenuEntries: BacklogItemCategory.fullMenuItems,
+                label: const Text(
+                  "Category",
+                  style: TextStyle(color: Colors.black, fontSize: 14.0),
+                ),
                 onSelected: (value) {
-                  // TODO: append filter to only selected rating
+                  value == BacklogItemCategory.all
+                      ? itemList.setCategoryFilter((i) => true)
+                      : itemList.setCategoryFilter((i) => i.category == value);
                 },
               ),
-            )),
-      ],
-    );
+            ),
+          ),
+
+          // Progress Filter
+          ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
+              child: Container(
+                  color: colorscheme.overlay1,
+                  child: DropdownMenu<BacklogItemProgress>(
+                    dropdownMenuEntries: BacklogItemProgress.fullMenuItems,
+                    label: const Text("Progress",
+                        style: TextStyle(color: Colors.black, fontSize: 14.0)),
+                    onSelected: (value) {
+                      value == BacklogItemProgress.all
+                          ? itemList.setProgressFilter((i) => true)
+                          : itemList
+                              .setProgressFilter((i) => i.progress == value);
+                    },
+                  ))),
+
+          // Rating Filter
+          ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
+              child: Container(
+                color: colorscheme.overlay1,
+                child: DropdownMenu<int>(
+                  dropdownMenuEntries: ratingMenuEntries(),
+                  label: const Text("Rating",
+                      style: TextStyle(color: Colors.black, fontSize: 14.0)),
+                  onSelected: (value) {
+                    // 0 represents "all"
+                    value == 0
+                        ? itemList.setRatingFilter((i) => true)
+                        : itemList.setRatingFilter((i) => i.rating == value);
+                  },
+                ),
+              )),
+        ],
+      );
+    });
   }
 }
 
@@ -235,9 +283,9 @@ class BacklogItemDetails extends StatelessWidget {
                               borderRadius: const BorderRadius.only(
                                   topLeft: Radius.circular(8.0),
                                   bottomLeft: Radius.circular(8.0)),
-                              child: item.imageAssetPath != null
+                              child: item.imagePath != null
                                   ? Image.asset(
-                                      item.imageAssetPath!,
+                                      item.imagePath!,
                                       fit: BoxFit.fill,
                                     )
                                   : Icon(Icons.image_rounded),

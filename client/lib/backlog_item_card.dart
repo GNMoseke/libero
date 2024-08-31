@@ -23,9 +23,9 @@ class BacklogItemCard extends StatelessWidget {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              item.imageAssetPath != null
+              item.imagePath != null
                   ? Ink.image(
-                      image: AssetImage(item.imageAssetPath!),
+                      image: AssetImage(item.imagePath!),
                       fit: BoxFit.fill,
                       child: InkWell(
                         onTap: () {
