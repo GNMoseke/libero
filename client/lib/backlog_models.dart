@@ -1,10 +1,11 @@
 import 'dart:collection';
+import 'package:uuid/uuid.dart';
 
 import 'package:flutter/material.dart';
 import 'package:catppuccin_flutter/catppuccin_flutter.dart';
 
 class BacklogListModel extends ChangeNotifier {
-  List<BacklogItem> _allItems = [];
+  Map<String, BacklogItem> _allItems = {};
 
   bool Function(BacklogItem) _titleFilter = (i) => true;
   bool Function(BacklogItem) _categoryFilter = (i) => true;
@@ -12,11 +13,11 @@ class BacklogListModel extends ChangeNotifier {
   bool Function(BacklogItem) _ratingFilter = (i) => true;
 
   BacklogListModel(List<BacklogItem> items) {
-    _allItems = items;
+    _allItems = {for (var item in items) item.id: item};
   }
 
   UnmodifiableListView<BacklogItem> get items {
-    return UnmodifiableListView(_allItems.where((item) =>
+    return UnmodifiableListView(_allItems.values.where((item) =>
         _titleFilter(item) &&
         _categoryFilter(item) &&
         _progressFilter(item) &&
@@ -24,15 +25,15 @@ class BacklogListModel extends ChangeNotifier {
   }
 
   UnmodifiableListView<BacklogItem> get allitems =>
-      UnmodifiableListView(_allItems);
+      UnmodifiableListView(_allItems.values);
 
-  void add(BacklogItem newItem) {
-    _allItems.add(newItem);
+  void addOrUpdate(BacklogItem newItem) {
+    _allItems.update(newItem.id, (value) => newItem, ifAbsent: () => newItem);
     notifyListeners();
   }
 
   void remove(BacklogItem toRemove) {
-    _allItems.remove(toRemove);
+    _allItems.remove(toRemove.id);
     notifyListeners();
   }
 
@@ -177,31 +178,25 @@ enum BacklogItemProgress {
 }
 
 class BacklogItem {
-  final BacklogItemCategory category;
-  final String title;
-  final BacklogItemProgress progress;
-  final bool? favorite;
-  final bool? replay;
-  final String? notes;
-  final int? rating;
-  final String? genre;
-  final String? imagePath;
-  // TODO: enable
-  // final List<String>? tags
+  // uses UUIDs
+  final String id;
+  BacklogItemCategory category;
+  String title;
+  BacklogItemProgress progress;
+  bool? favorite;
+  bool? replay;
+  String? notes;
+  int? rating;
+  String? genre;
+  String? imagePath;
 
-  BacklogItem(
-      {required this.category,
-      required this.title,
-      required this.progress,
-      this.favorite,
-      this.replay,
-      this.notes,
-      this.rating,
-      this.genre,
-      this.imagePath});
+  BacklogItem(this.category, this.title, this.progress, this.favorite,
+      this.replay, this.notes, this.rating, this.genre, this.imagePath)
+      : id = const Uuid().v4();
 
   BacklogItem.fromJson(Map<String, dynamic> json)
-      : category = BacklogItemCategory.values
+      : id = json['id'] as String,
+        category = BacklogItemCategory.values
             .byName((json['category'] as String).toLowerCase()),
         title = json['title'] as String,
         progress = BacklogItemProgress.values
@@ -214,6 +209,7 @@ class BacklogItem {
         imagePath = json['imagePath'] as String?;
 
   Map<String, dynamic> toJson() => {
+        'id': id.toString(),
         'category': category.toString(),
         'title': title,
         'progress': progress.toString(),

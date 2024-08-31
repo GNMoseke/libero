@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:khares_client/backlog_card_edit.dart';
 import 'package:provider/provider.dart';
 
 import 'backlog_item_card.dart';
@@ -45,90 +47,125 @@ class BacklogMenuBar extends StatelessWidget {
   const BacklogMenuBar({
     super.key,
   });
+  final double componentHeight = 54;
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<BacklogListModel>(builder: (context, itemList, child) {
+    // Something here is smelly but I don't know enough about provider to know what it is.
+    // see no evil hear no evil speak no evil
+    var listState = Provider.of<BacklogListModel>(context, listen: false);
+    return Consumer<BacklogListModel>(builder: (childContext, itemList, child) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           // Add new button
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8.0),
-            // FIXME: height is a bit wonky on this
-            child: Container(
-                color: colorscheme.overlay1,
-                child: IconButton(
-                    onPressed: () {}, icon: const Icon(Icons.note_add))),
+          Flexible(
+            flex: 1,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
+              child: Container(
+                  height: componentHeight,
+                  width: componentHeight,
+                  color: colorscheme.overlay1,
+                  child: IconButton(
+                      onPressed: () {
+                        showDialog(
+                            context: context,
+                            builder: (_) {
+                              return ChangeNotifierProvider<
+                                      BacklogListModel>.value(
+                                  value: listState, child: BacklogItemEditor());
+                            });
+                      },
+                      icon: const Icon(Icons.note_add))),
+            ),
           ),
 
           // Search Bar
-          SizedBox(
-              width: 400,
-              child: SearchBar(
-                hintText: "Title",
-                leading: const Icon(Icons.search_rounded),
-                backgroundColor: MaterialStatePropertyAll(colorscheme.overlay1),
-                onChanged: (text) {
-                  itemList.setTitleFilter((i) =>
-                      i.title.toLowerCase().contains(text.toLowerCase()));
-                },
-              )),
+          Flexible(
+            flex: 5,
+            child: SizedBox(
+                height: componentHeight,
+                child: SearchBar(
+                  hintText: "Title",
+                  leading: const Icon(Icons.search_rounded),
+                  backgroundColor:
+                      MaterialStatePropertyAll(colorscheme.overlay1),
+                  onChanged: (text) {
+                    itemList.setTitleFilter((i) =>
+                        i.title.toLowerCase().contains(text.toLowerCase()));
+                  },
+                )),
+          ),
 
           // Category Filter
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8.0),
-            child: Container(
-              color: colorscheme.overlay1,
-              child: DropdownMenu<BacklogItemCategory>(
-                dropdownMenuEntries: BacklogItemCategory.fullMenuItems,
-                label: const Text(
-                  "Category",
-                  style: TextStyle(color: Colors.black, fontSize: 14.0),
+          Flexible(
+            flex: 2,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8.0),
+              child: Container(
+                height: componentHeight,
+                color: colorscheme.overlay1,
+                child: DropdownMenu<BacklogItemCategory>(
+                  dropdownMenuEntries: BacklogItemCategory.fullMenuItems,
+                  label: const Text(
+                    "Category",
+                    style: TextStyle(color: Colors.black, fontSize: 14.0),
+                  ),
+                  onSelected: (value) {
+                    value == BacklogItemCategory.all
+                        ? itemList.setCategoryFilter((i) => true)
+                        : itemList
+                            .setCategoryFilter((i) => i.category == value);
+                  },
                 ),
-                onSelected: (value) {
-                  value == BacklogItemCategory.all
-                      ? itemList.setCategoryFilter((i) => true)
-                      : itemList.setCategoryFilter((i) => i.category == value);
-                },
               ),
             ),
           ),
 
           // Progress Filter
-          ClipRRect(
-              borderRadius: BorderRadius.circular(8.0),
-              child: Container(
-                  color: colorscheme.overlay1,
-                  child: DropdownMenu<BacklogItemProgress>(
-                    dropdownMenuEntries: BacklogItemProgress.fullMenuItems,
-                    label: const Text("Progress",
-                        style: TextStyle(color: Colors.black, fontSize: 14.0)),
-                    onSelected: (value) {
-                      value == BacklogItemProgress.all
-                          ? itemList.setProgressFilter((i) => true)
-                          : itemList
-                              .setProgressFilter((i) => i.progress == value);
-                    },
-                  ))),
+          Flexible(
+            flex: 2,
+            child: ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
+                child: Container(
+                    height: componentHeight,
+                    color: colorscheme.overlay1,
+                    child: DropdownMenu<BacklogItemProgress>(
+                      dropdownMenuEntries: BacklogItemProgress.fullMenuItems,
+                      label: const Text("Progress",
+                          style:
+                              TextStyle(color: Colors.black, fontSize: 14.0)),
+                      onSelected: (value) {
+                        value == BacklogItemProgress.all
+                            ? itemList.setProgressFilter((i) => true)
+                            : itemList
+                                .setProgressFilter((i) => i.progress == value);
+                      },
+                    ))),
+          ),
 
           // Rating Filter
-          ClipRRect(
-              borderRadius: BorderRadius.circular(8.0),
-              child: Container(
-                color: colorscheme.overlay1,
-                child: DropdownMenu<int>(
-                  dropdownMenuEntries: ratingMenuEntries(),
-                  label: const Text("Rating",
-                      style: TextStyle(color: Colors.black, fontSize: 14.0)),
-                  onSelected: (value) {
-                    // 0 represents "all"
-                    value == 0
-                        ? itemList.setRatingFilter((i) => true)
-                        : itemList.setRatingFilter((i) => i.rating == value);
-                  },
-                ),
-              )),
+          Flexible(
+            flex: 2,
+            child: ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
+                child: Container(
+                  height: componentHeight,
+                  color: colorscheme.overlay1,
+                  child: DropdownMenu<int>(
+                    dropdownMenuEntries: ratingMenuEntries(),
+                    label: const Text("Rating",
+                        style: TextStyle(color: Colors.black, fontSize: 14.0)),
+                    onSelected: (value) {
+                      // 0 represents "all"
+                      value == 0
+                          ? itemList.setRatingFilter((i) => true)
+                          : itemList.setRatingFilter((i) => i.rating == value);
+                    },
+                  ),
+                )),
+          ),
         ],
       );
     });
