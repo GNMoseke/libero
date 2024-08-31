@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:khares_client/backlog_card_edit.dart';
 
 import 'backlog_models.dart';
 
@@ -41,7 +42,13 @@ class BacklogItemDetails extends StatelessWidget {
       return Scaffold(
         backgroundColor: colorscheme.base,
         floatingActionButton:
-            IconButton.filled(onPressed: () {}, icon: const Icon(Icons.edit)),
+            IconButton.filled(onPressed: () {
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return BacklogItemEditor(item: item);
+                            });
+            }, icon: const Icon(Icons.edit)),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         body: Column(
           children: [
