@@ -73,6 +73,7 @@ class BacklogViewState extends State<BacklogView> {
   void addOrUpdate(BacklogItem newItem) {
     setState(() {
       allItems.update(newItem.id, (value) => newItem, ifAbsent: () => newItem);
+      _updateFilteredItems();
     });
   }
 
@@ -95,14 +96,18 @@ class BacklogViewState extends State<BacklogView> {
         _ratingFilter = f;
     }
     setState(() {
-      filteredItems = allItems.values
-          .where((item) =>
-              _titleFilter(item) &&
-              _categoryFilter(item) &&
-              _progressFilter(item) &&
-              _ratingFilter(item))
-          .toList();
+      _updateFilteredItems();
     });
+  }
+
+  void _updateFilteredItems() {
+    filteredItems = allItems.values
+        .where((item) =>
+            _titleFilter(item) &&
+            _categoryFilter(item) &&
+            _progressFilter(item) &&
+            _ratingFilter(item))
+        .toList();
   }
 
   void setSelectedItem(BacklogItem newItem) {
