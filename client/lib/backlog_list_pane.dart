@@ -126,8 +126,11 @@ class BacklogMenuBar extends StatelessWidget {
                 ),
                 onSelected: (value) {
                   value == BacklogItemCategory.all
-                      ? onApplyFilter(Filter(type: FilterType.category, f: ((i) => true)))
-                      : onApplyFilter(Filter(type: FilterType.category, f: (i) => i.category == value));
+                      ? onApplyFilter(
+                          Filter(type: FilterType.category, f: ((i) => true)))
+                      : onApplyFilter(Filter(
+                          type: FilterType.category,
+                          f: (i) => i.category == value));
                 },
               ),
             ),
@@ -148,8 +151,11 @@ class BacklogMenuBar extends StatelessWidget {
                         style: TextStyle(color: Colors.black, fontSize: 14.0)),
                     onSelected: (value) {
                       value == BacklogItemProgress.all
-                      ? onApplyFilter(Filter(type: FilterType.progress, f: ((i) => true)))
-                      : onApplyFilter(Filter(type: FilterType.progress, f: (i) => i.progress == value));
+                          ? onApplyFilter(Filter(
+                              type: FilterType.progress, f: ((i) => true)))
+                          : onApplyFilter(Filter(
+                              type: FilterType.progress,
+                              f: (i) => i.progress == value));
                     },
                   ))),
         ),
@@ -163,14 +169,17 @@ class BacklogMenuBar extends StatelessWidget {
                 height: componentHeight,
                 color: colorscheme.overlay1,
                 child: DropdownMenu<int>(
-                  dropdownMenuEntries: ratingMenuEntries(),
+                  dropdownMenuEntries: ratingMenuEntries(true),
                   label: const Text("Rating",
                       style: TextStyle(color: Colors.black, fontSize: 14.0)),
                   onSelected: (value) {
                     // 0 represents "all"
                     value == 0
-                      ? onApplyFilter(Filter(type: FilterType.rating, f: ((i) => true)))
-                      : onApplyFilter(Filter(type: FilterType.rating, f: (i) => i.rating == value));
+                        ? onApplyFilter(
+                            Filter(type: FilterType.rating, f: ((i) => true)))
+                        : onApplyFilter(Filter(
+                            type: FilterType.rating,
+                            f: (i) => i.rating == value));
                   },
                 ),
               )),
