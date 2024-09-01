@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'package:uuid/uuid.dart';
 
 import 'package:flutter/material.dart';
@@ -39,9 +38,9 @@ class BacklogItem {
 
   Map<String, dynamic> toJson() => {
         'id': id.toString(),
-        'category': category.toString(),
+        'category': category.name.toLowerCase().toString(),
         'title': title,
-        'progress': progress.toString(),
+        'progress': progress.name.toLowerCase().toString(),
         if (favorite != null) 'favorite': favorite,
         if (replay != null) 'replay': replay,
         if (notes != null) 'notes': notes,

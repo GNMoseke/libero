@@ -20,7 +20,7 @@ class BacklogItemEditor extends StatefulWidget {
   BacklogItemEditor({super.key, required this.item, required this.onSubmitItem})
       : title = item?.title,
         category = item?.category,
-        progress = item?.progress,
+        progress = item?.progress ?? BacklogItemProgress.backlog,
         favorite = item?.favorite,
         notes = item?.notes,
         rating = item?.rating,
