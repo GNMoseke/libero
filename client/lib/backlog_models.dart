@@ -78,6 +78,12 @@ enum BacklogItemCategory {
   static List<DropdownMenuEntry<BacklogItemCategory>> get fullMenuItems =>
       BacklogItemCategory.values.map((e) => e.menuItem).toList();
 
+  static List<DropdownMenuEntry<BacklogItemCategory>> get withoutAll =>
+      BacklogItemCategory.values
+          .where((e) => e != BacklogItemCategory.all)
+          .map((e) => e.menuItem)
+          .toList();
+
   DropdownMenuEntry<BacklogItemCategory> get menuItem => DropdownMenuEntry(
       value: this, label: name.toUpperCase(), leadingIcon: Icon(icon));
 }
@@ -100,6 +106,12 @@ enum BacklogItemProgress {
 
   static List<DropdownMenuEntry<BacklogItemProgress>> get fullMenuItems =>
       BacklogItemProgress.values.map((e) => e.menuItem).toList();
+
+  static List<DropdownMenuEntry<BacklogItemProgress>> get withoutAll =>
+      BacklogItemProgress.values
+          .where((e) => e != BacklogItemProgress.all)
+          .map((e) => e.menuItem)
+          .toList();
 
   Color get color {
     switch (this) {
@@ -172,11 +184,14 @@ Color getRatingColor(int? rating) {
   }
 }
 
-List<DropdownMenuEntry<int>> ratingMenuEntries() {
+List<DropdownMenuEntry<int>> ratingMenuEntries(bool all) {
   var ret = List.generate(
       10,
       (index) =>
           DropdownMenuEntry(value: index + 1, label: (index + 1).toString()));
-  ret.add(const DropdownMenuEntry(value: 0, label: "ALL"));
+
+  all
+      ? ret.add(const DropdownMenuEntry(value: 0, label: "ALL"))
+      : ret.add(const DropdownMenuEntry(value: 0, label: "N/A"));
   return ret;
 }
