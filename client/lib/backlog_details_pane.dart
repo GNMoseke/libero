@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'package:khares_client/backlog_card_edit.dart';
 
 import 'backlog_models.dart';
@@ -200,8 +201,8 @@ class _AtAGlance extends StatelessWidget {
                   topLeft: Radius.circular(8.0),
                   bottomLeft: Radius.circular(8.0)),
               child: item.imagePath != null
-                  ? Image.asset(
-                      item.imagePath!,
+                  ? Image.file(
+                      File(item.imagePath!),
                       fit: BoxFit.fill,
                     )
                   : const Icon(Icons.image_rounded),

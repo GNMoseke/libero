@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'backlog_models.dart';
 
@@ -21,11 +23,11 @@ class BacklogItemCard extends StatelessWidget {
             children: [
               item.imagePath != null
                   ? Ink.image(
-                      image: AssetImage(item.imagePath!),
+                      image: FileImage(File(item.imagePath!)),
                       fit: BoxFit.fill,
                       child: InkWell(
                         onTap: () {
-                                        onSelectItem(item);
+                          onSelectItem(item);
                         },
                       ),
                     )
@@ -33,17 +35,12 @@ class BacklogItemCard extends StatelessWidget {
                       onTap: () {
                         onSelectItem(item);
                       },
-                      // FIXME: this is necessary to get the inkwell to fill the card. I tried with FittedBox
-                      // and that seemed to not work. There's gotta be a less annoying way to do this.
-                      child: SizedBox(
-                          width: 300,
-                          height: 500,
-                          child: Center(
-                            child: Text(item.title,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Colors.black, fontSize: 32.0)),
-                          )),
+                      child: Center(
+                        child: Text(item.title,
+                            textAlign: TextAlign.center,
+                            style:
+                                const TextStyle(color: Colors.black, fontSize: 32.0)),
+                      ),
                     ),
               Positioned(
                 bottom: 8.0,
