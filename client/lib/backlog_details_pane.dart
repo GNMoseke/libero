@@ -5,32 +5,53 @@ import 'backlog_models.dart';
 
 class BacklogDetailsPane extends StatelessWidget {
   const BacklogDetailsPane({
-        required this.item,
-        required this.onSubmitItem,
+    required this.item,
+    required this.onSubmitItem,
     super.key,
   });
 
-    final BacklogItem? item;
+  final BacklogItem? item;
   final ValueChanged<BacklogItem> onSubmitItem;
 
   @override
   Widget build(BuildContext context) {
+    const contentPadding = 32.0;
+    // magic 6 is the edge inset from the center
+    final paneContentWidth =
+        (MediaQuery.sizeOf(context).width / 2) - (contentPadding * 2) - 6.0;
+    // magic 12 is from the overall edge insets at the top level scaffold
+    final paneContentHeight =
+        MediaQuery.sizeOf(context).height - (contentPadding * 2) - 12.0;
+
     return Expanded(
         child: Container(
+            padding: const EdgeInsets.only(left: 6.0),
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12.0),
                 border: Border.all(color: colorscheme.surface0, width: 2.0)),
             child: Padding(
-              padding: const EdgeInsets.all(32.0),
-              child: BacklogItemDetails(item: item, onSubmitItem: onSubmitItem,),
+              padding: const EdgeInsets.all(contentPadding),
+              child: BacklogItemDetails(
+                paneContentWidth: paneContentWidth,
+                paneContentHeight: paneContentHeight,
+                item: item,
+                onSubmitItem: onSubmitItem,
+              ),
             )));
   }
 }
 
 class BacklogItemDetails extends StatelessWidget {
-  const BacklogItemDetails({required this.item, required this.onSubmitItem, super.key});
-    final BacklogItem? item;
+  const BacklogItemDetails(
+      {required this.item,
+      required this.onSubmitItem,
+      required this.paneContentWidth,
+      required this.paneContentHeight,
+      super.key});
+  final BacklogItem? item;
   final ValueChanged<BacklogItem> onSubmitItem;
+  final double paneContentWidth;
+  final double paneContentHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -42,14 +63,21 @@ class BacklogItemDetails extends StatelessWidget {
               showDialog(
                   context: context,
                   builder: (BuildContext context) {
-                    return BacklogItemEditor(item: item, onSubmitItem: onSubmitItem,);
+                    return BacklogItemEditor(
+                      item: item,
+                      onSubmitItem: onSubmitItem,
+                    );
                   });
             },
             icon: const Icon(Icons.edit)),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         body: Column(
           children: [
-            _Header(item: item!),
+            _Header(
+              item: item!,
+              paneContentWidth: paneContentWidth,
+              paneContentHeight: paneContentHeight,
+            ),
             Divider(
               thickness: 3.0,
               color: colorscheme.surface0,
@@ -59,7 +87,13 @@ class BacklogItemDetails extends StatelessWidget {
         ),
       );
     }
-    return const Text("No Selection");
+    return const Center(
+      child: Text(
+        "No Selection",
+        style: TextStyle(
+            color: Colors.black, fontWeight: FontWeight.bold, fontSize: 32.0),
+      ),
+    );
   }
 }
 
@@ -84,18 +118,26 @@ class _Body extends StatelessWidget {
 class _Header extends StatelessWidget {
   const _Header({
     required this.item,
+    required this.paneContentWidth,
+    required this.paneContentHeight,
   });
 
   final BacklogItem item;
+  final double paneContentWidth;
+  final double paneContentHeight;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-        height: 220,
+        height: paneContentHeight * 0.24,
         child: Row(
           children: [
             // Image and icons
-            _AtAGlance(item: item),
+            _AtAGlance(
+              item: item,
+              paneContentHeight: paneContentHeight,
+              paneContentWidth: paneContentWidth,
+            ),
 
             // Title
             const Padding(padding: EdgeInsets.symmetric(horizontal: 6.0)),
@@ -104,10 +146,9 @@ class _Header extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                  width: 600,
+                  width: paneContentWidth * 0.7,
                   child: Text(
                     item.title.toUpperCase(),
-                    // FIXME: this will still overflow without an ellipsis because of the column thing if the text is too long
                     style: const TextStyle(
                         color: Colors.black,
                         fontSize: 64.0,
@@ -135,9 +176,13 @@ class _Header extends StatelessWidget {
 class _AtAGlance extends StatelessWidget {
   const _AtAGlance({
     required this.item,
+    required this.paneContentWidth,
+    required this.paneContentHeight,
   });
 
   final BacklogItem item;
+  final double paneContentWidth;
+  final double paneContentHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -145,7 +190,7 @@ class _AtAGlance extends StatelessWidget {
       decoration: BoxDecoration(
           border: Border.all(color: Colors.black),
           borderRadius: const BorderRadius.all(Radius.circular(8.0))),
-      width: 200,
+      width: paneContentWidth * 0.24,
       child: Row(
         children: [
           // Image
@@ -169,7 +214,7 @@ class _AtAGlance extends StatelessWidget {
                 topRight: Radius.circular(8.0),
                 bottomRight: Radius.circular(8.0)),
             child: Container(
-              width: 50,
+              width: paneContentWidth * 0.06,
               color: colorscheme.surface1,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,

@@ -123,7 +123,7 @@ class BacklogViewState extends State<BacklogView> {
         body: Container(
           padding: const EdgeInsets.all(12.0),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               BacklogListPane(
                 allItems: allItems.values.toList(),

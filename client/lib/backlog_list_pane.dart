@@ -24,30 +24,33 @@ class BacklogListPane extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
         width: MediaQuery.sizeOf(context).width / 2,
-        child: Column(
-          children: [
-            SizedBox(
-              height: 70,
-              child: BacklogMenuBar(
-                onApplyFilter: onApplyFilter,
-                onSubmitItem: onSubmitItem,
+        child: Padding(
+          padding: const EdgeInsets.only(right: 6.0),
+          child: Column(
+            children: [
+              SizedBox(
+                height: 70,
+                child: BacklogMenuBar(
+                  onApplyFilter: onApplyFilter,
+                  onSubmitItem: onSubmitItem,
+                ),
               ),
-            ),
-            Flexible(
-                child: GridView.count(
-              crossAxisSpacing: 8,
-              mainAxisSpacing: 8,
-              crossAxisCount: 4,
-              scrollDirection: Axis.vertical,
-              childAspectRatio: 0.65,
-              children: List<BacklogItemCard>.from(filteredItems.map((item) {
-                return BacklogItemCard(
-                  item: item,
-                  onSelectItem: onSelectItem,
-                );
-              })),
-            )),
-          ],
+              Flexible(
+                  child: GridView.count(
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
+                crossAxisCount: 4,
+                scrollDirection: Axis.vertical,
+                childAspectRatio: 0.65,
+                children: List<BacklogItemCard>.from(filteredItems.map((item) {
+                  return BacklogItemCard(
+                    item: item,
+                    onSelectItem: onSelectItem,
+                  );
+                })),
+              )),
+            ],
+          ),
         ));
   }
 }
