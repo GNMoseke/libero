@@ -8,6 +8,7 @@ import 'backlog_list_pane.dart';
 import 'backlog_models.dart';
 
 // TODO: allow this to be given in a config file
+final String dataDir = "${Platform.environment['HOME']}/Documents/khares_data/";
 final String dataPath = "${Platform.environment['HOME']}/Documents/khares.json";
 
 // I know this singleton approach is probably icky for state management, but this thing will not be writing/reading
@@ -25,8 +26,14 @@ class ItemStore {
     }
   }
 
-  static Future<void> writeBacklog() async {
-    return Future.value();
+  static void writeBacklog(List<BacklogItem> items) async {
+    try {
+      final newBacklogData = jsonEncode(items);
+      final file = File(dataPath);
+      await file.writeAsString(newBacklogData);
+    } catch (e) {
+      exit(1);
+    }
   }
 }
 
@@ -57,7 +64,6 @@ class Khares extends StatelessWidget {
   }
 }
 
-
 class BacklogViewState extends State<BacklogView> {
   Map<String, BacklogItem> allItems;
   List<BacklogItem> filteredItems;
@@ -70,9 +76,23 @@ class BacklogViewState extends State<BacklogView> {
   BacklogViewState({required this.allItems})
       : filteredItems = allItems.values.toList();
 
+  // TODO: I should add some error handling/logging here as well, this isn't bulletproof.
   void addOrUpdate(BacklogItem newItem) {
     setState(() {
+      // We copy the image we were given to use to a separate location so it can't get moved out from under us and
+      // cause a problem in subsequent app loads.
+      if (newItem.imagePath != null) {
+        final givenFile = File(newItem.imagePath!);
+
+        // copySync is smart enough to replace if something already exists (thanks dart stdlib!)
+        // TODO: no file extensions right now, which may be OK.
+        final newPath = "$dataDir${newItem.id}";
+        givenFile.copySync(newPath);
+        newItem.imagePath = newPath;
+      }
       allItems.update(newItem.id, (value) => newItem, ifAbsent: () => newItem);
+      // don't need to wait on this future, can just fire-and-forget
+      ItemStore.writeBacklog(allItems.values.toList());
       _updateFilteredItems();
     });
   }
