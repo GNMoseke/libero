@@ -134,11 +134,13 @@ class _Header extends StatelessWidget {
         child: Row(
           children: [
             // Image and icons
-            _AtAGlance(
-              item: item,
-              paneContentHeight: paneContentHeight,
-              paneContentWidth: paneContentWidth,
-            ),
+            if (item.imagePath != null) ...[
+              _AtAGlance(
+                item: item,
+                paneContentHeight: paneContentHeight,
+                paneContentWidth: paneContentWidth,
+              )
+            ],
 
             // Title
             const Padding(padding: EdgeInsets.symmetric(horizontal: 6.0)),
@@ -187,6 +189,57 @@ class _AtAGlance extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Card(
+      color: colorscheme.surface2,
+      child: ClipRRect(
+          borderRadius: BorderRadius.circular(8.0),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              AspectRatio(
+                aspectRatio: 0.7,
+                child: Image.file(
+                  File(item.imagePath!),
+                  fit: BoxFit.fill,
+                ),
+              ),
+              Positioned(
+                bottom: 8.0,
+                child: Container(
+                  width: 150.0,
+                  height: 30.0,
+                  decoration: BoxDecoration(
+                      color: Color.fromRGBO(colorscheme.crust.red,
+                          colorscheme.crust.green, colorscheme.crust.blue, 0.8),
+                      borderRadius: BorderRadius.circular(12.0)),
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Icon(
+                          item.category.icon,
+                          color: colorscheme.overlay2,
+                            size: 20.0,
+                        ),
+                        Text(item.progress.textual.toUpperCase(),
+                            style: TextStyle(
+                                color: item.progress.color,
+                                fontWeight: FontWeight.bold)),
+                        Text(
+                          item.rating != null
+                              ? item.rating!.clamp(1, 10).toString()
+                              : "N/A",
+                          style: TextStyle(
+                              color: getRatingColor(item.rating),
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ]),
+                ),
+              ),
+            ],
+          )),
+    );
     return Container(
       decoration: BoxDecoration(
           border: Border.all(color: Colors.black),
