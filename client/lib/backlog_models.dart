@@ -115,7 +115,7 @@ enum BacklogItemProgress {
   Color get color {
     switch (this) {
       case BacklogItemProgress.backlog:
-        return colorscheme.surface0;
+        return colorscheme.subtext1;
       case BacklogItemProgress.inprogress:
         return colorscheme.peach;
       case BacklogItemProgress.complete:
@@ -165,21 +165,21 @@ Color getRatingColor(int? rating) {
     case 3:
       return colorscheme.red;
     case 4:
-      return colorscheme.red;
+      return colorscheme.yellow;
     case 5:
-      return colorscheme.peach;
+      return colorscheme.yellow;
     case 6:
-      return colorscheme.peach;
+      return colorscheme.yellow;
     case 7:
-      return Colors.lime;
+      return colorscheme.teal;
     case 8:
-      return Colors.lime;
+      return colorscheme.teal;
     case 9:
       return colorscheme.green;
     case 10:
       return colorscheme.green;
     default:
-      return Colors.black;
+      return colorscheme.subtext0;
   }
 }
 

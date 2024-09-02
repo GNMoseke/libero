@@ -33,9 +33,7 @@ class BacklogItemEditor extends StatefulWidget {
 
 class _BacklogItemEditorState extends State<BacklogItemEditor> {
   final XTypeGroup imageGroup = const XTypeGroup(
-    label: 'images',
-    extensions: <String>['jpg', 'png', 'jpeg'],
-  );
+      label: 'images', extensions: <String>['jpg', 'png', 'jpeg', 'webp']);
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +48,7 @@ class _BacklogItemEditorState extends State<BacklogItemEditor> {
             width: dialogWidth,
             height: dialogHeight,
             child: Scaffold(
-              backgroundColor: Colors.blueGrey,
+              backgroundColor: colorscheme.overlay1,
               floatingActionButton: IconButton.filled(
                   onPressed: () {
                     // simple update case
@@ -157,8 +155,8 @@ class _BacklogItemEditorState extends State<BacklogItemEditor> {
                             // Image entry
                             Container(
                               decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.black),
-                                  ),
+                                border: Border.all(color: Colors.black),
+                              ),
                               width: dialogWidth * 0.5,
                               height: dialogHeight * 0.5,
                               child: widget.imagePath != null
@@ -212,8 +210,10 @@ class _BacklogItemEditorState extends State<BacklogItemEditor> {
                                               BorderRadius.circular(8.0))),
                                   width: dialogWidth * 0.3,
                                   initialSelection: widget.category,
-                                  leadingIcon: Icon(widget.category?.icon ??
-                                      Icons.new_label),
+                                  leadingIcon: Icon(
+                                    widget.category?.icon ?? Icons.new_label,
+                                    color: colorscheme.crust,
+                                  ),
                                   dropdownMenuEntries:
                                       BacklogItemCategory.withoutAll,
                                   label: const Text("Category",
@@ -247,7 +247,7 @@ class _BacklogItemEditorState extends State<BacklogItemEditor> {
                                   initialSelection: widget.progress ??
                                       BacklogItemProgress.backlog,
                                   leadingIcon: Icon(widget.progress?.icon ??
-                                      BacklogItemProgress.backlog.icon),
+                                      BacklogItemProgress.backlog.icon, color: colorscheme.crust),
                                   dropdownMenuEntries:
                                       BacklogItemProgress.withoutAll,
                                   label: const Text("Progress",
@@ -279,7 +279,7 @@ class _BacklogItemEditorState extends State<BacklogItemEditor> {
                                               BorderRadius.circular(8.0))),
                                   width: dialogWidth * 0.3,
                                   initialSelection: widget.rating ?? 0,
-                                  leadingIcon: const Icon(Icons.grade),
+                                  leadingIcon: Icon(Icons.grade, color: colorscheme.crust),
                                   dropdownMenuEntries: ratingMenuEntries(false),
                                   label: const Text("Rating",
                                       style: TextStyle(
@@ -287,7 +287,10 @@ class _BacklogItemEditorState extends State<BacklogItemEditor> {
                                           fontWeight: FontWeight.bold,
                                           fontSize: 16.0)),
                                   onSelected: (value) {
+                                                    setState(() {
+                                                                                                          
                                     widget.rating = value;
+                                                                                                        });
                                   },
                                 ),
                               ]),
@@ -308,7 +311,7 @@ class _BacklogItemEditorState extends State<BacklogItemEditor> {
                             controller:
                                 TextEditingController(text: widget.notes),
                             style: const TextStyle(
-                                fontSize: 12.0, color: Colors.black),
+                                fontSize: 16.0, color: Colors.black),
                             keyboardType: TextInputType.multiline,
                             maxLines: null,
                             onChanged: (String? value) {
