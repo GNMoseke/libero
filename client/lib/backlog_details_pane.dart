@@ -1,18 +1,19 @@
-import 'package:flutter/material.dart';
 import 'dart:io';
-import 'package:libero/backlog_card_edit.dart';
+
+import 'package:flutter/material.dart';
+import 'backlog_card_edit.dart';
 
 import 'backlog_models.dart';
 
 class BacklogDetailsPane extends StatelessWidget {
+  final BacklogItem? item;
+
+  final ValueChanged<BacklogItem> onSubmitItem;
   const BacklogDetailsPane({
     required this.item,
     required this.onSubmitItem,
     super.key,
   });
-
-  final BacklogItem? item;
-  final ValueChanged<BacklogItem> onSubmitItem;
 
   @override
   Widget build(BuildContext context) {
@@ -43,16 +44,16 @@ class BacklogDetailsPane extends StatelessWidget {
 }
 
 class BacklogItemDetails extends StatelessWidget {
+  final BacklogItem? item;
+  final ValueChanged<BacklogItem> onSubmitItem;
+  final double paneContentWidth;
+  final double paneContentHeight;
   const BacklogItemDetails(
       {required this.item,
       required this.onSubmitItem,
       required this.paneContentWidth,
       required this.paneContentHeight,
       super.key});
-  final BacklogItem? item;
-  final ValueChanged<BacklogItem> onSubmitItem;
-  final double paneContentWidth;
-  final double paneContentHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -98,94 +99,16 @@ class BacklogItemDetails extends StatelessWidget {
   }
 }
 
-class _Body extends StatelessWidget {
-  const _Body({
-    required this.item,
-  });
-
+class _AtAGlance extends StatelessWidget {
   final BacklogItem item;
 
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Text(
-        item.notes ?? "Nothing here!",
-        style: TextStyle(color: colorscheme.subtext1, fontSize: 16.0),
-      ),
-    );
-  }
-}
-
-class _Header extends StatelessWidget {
-  const _Header({
-    required this.item,
-    required this.paneContentWidth,
-    required this.paneContentHeight,
-  });
-
-  final BacklogItem item;
   final double paneContentWidth;
   final double paneContentHeight;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-        height: paneContentHeight * 0.24,
-        child: Row(
-          children: [
-            // Image and icons
-            if (item.imagePath != null) ...[
-              _AtAGlance(
-                item: item,
-                paneContentHeight: paneContentHeight,
-                paneContentWidth: paneContentWidth,
-              )
-            ],
-
-            // Title
-            const Padding(padding: EdgeInsets.symmetric(horizontal: 6.0)),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: paneContentWidth * 0.7,
-                  child: Text(
-                    item.title.toUpperCase(),
-                    style: TextStyle(
-                        color: colorscheme.text,
-                        fontSize: 64.0,
-                        fontWeight: FontWeight.bold,
-                        fontStyle: FontStyle.italic,
-                        letterSpacing: -0.5,
-                        wordSpacing: -0.5,
-                        height: 1.0),
-                  ),
-                ),
-                Text(
-                  item.genre ?? "Unknown",
-                  style: TextStyle(
-                      color: colorscheme.subtext0,
-                      fontSize: 20.0,
-                      fontStyle: FontStyle.italic),
-                ),
-              ],
-            )
-          ],
-        ));
-  }
-}
-
-class _AtAGlance extends StatelessWidget {
   const _AtAGlance({
     required this.item,
     required this.paneContentWidth,
     required this.paneContentHeight,
   });
-
-  final BacklogItem item;
-  final double paneContentWidth;
-  final double paneContentHeight;
 
   @override
   Widget build(BuildContext context) {
@@ -293,5 +216,83 @@ class _AtAGlance extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class _Body extends StatelessWidget {
+  final BacklogItem item;
+
+  const _Body({
+    required this.item,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      child: Text(
+        item.notes ?? "Nothing here!",
+        style: TextStyle(color: colorscheme.subtext1, fontSize: 16.0),
+      ),
+    );
+  }
+}
+
+class _Header extends StatelessWidget {
+  final BacklogItem item;
+
+  final double paneContentWidth;
+  final double paneContentHeight;
+  const _Header({
+    required this.item,
+    required this.paneContentWidth,
+    required this.paneContentHeight,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+        height: paneContentHeight * 0.24,
+        child: Row(
+          children: [
+            // Image and icons
+            if (item.imagePath != null) ...[
+              _AtAGlance(
+                item: item,
+                paneContentHeight: paneContentHeight,
+                paneContentWidth: paneContentWidth,
+              )
+            ],
+
+            // Title
+            const Padding(padding: EdgeInsets.symmetric(horizontal: 6.0)),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: paneContentWidth * 0.7,
+                  child: Text(
+                    item.title.toUpperCase(),
+                    style: TextStyle(
+                        color: colorscheme.text,
+                        fontSize: 64.0,
+                        fontWeight: FontWeight.bold,
+                        fontStyle: FontStyle.italic,
+                        letterSpacing: -0.5,
+                        wordSpacing: -0.5,
+                        height: 1.0),
+                  ),
+                ),
+                Text(
+                  item.genre ?? "Unknown",
+                  style: TextStyle(
+                      color: colorscheme.subtext0,
+                      fontSize: 20.0,
+                      fontStyle: FontStyle.italic),
+                ),
+              ],
+            )
+          ],
+        ));
   }
 }

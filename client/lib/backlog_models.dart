@@ -1,9 +1,47 @@
+import 'package:catppuccin_flutter/catppuccin_flutter.dart';
+import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 
-import 'package:flutter/material.dart';
-import 'package:catppuccin_flutter/catppuccin_flutter.dart';
-
 Flavor colorscheme = catppuccin.mocha;
+
+Color getRatingColor(int? rating) {
+  switch (rating) {
+    case 1:
+      return colorscheme.red;
+    case 2:
+      return colorscheme.red;
+    case 3:
+      return colorscheme.red;
+    case 4:
+      return colorscheme.yellow;
+    case 5:
+      return colorscheme.yellow;
+    case 6:
+      return colorscheme.yellow;
+    case 7:
+      return colorscheme.teal;
+    case 8:
+      return colorscheme.teal;
+    case 9:
+      return colorscheme.green;
+    case 10:
+      return colorscheme.green;
+    default:
+      return colorscheme.subtext0;
+  }
+}
+
+List<DropdownMenuEntry<int>> ratingMenuEntries(bool all) {
+  var ret = List.generate(
+      10,
+      (index) =>
+          DropdownMenuEntry(value: index + 1, label: (index + 1).toString()));
+
+  all
+      ? ret.add(const DropdownMenuEntry(value: 0, label: "ALL"))
+      : ret.add(const DropdownMenuEntry(value: 0, label: "N/A"));
+  return ret;
+}
 
 class BacklogItem {
   // uses UUIDs
@@ -57,6 +95,15 @@ enum BacklogItemCategory {
   show,
   all;
 
+  static List<DropdownMenuEntry<BacklogItemCategory>> get fullMenuItems =>
+      BacklogItemCategory.values.map((e) => e.menuItem).toList();
+
+  static List<DropdownMenuEntry<BacklogItemCategory>> get withoutAll =>
+      BacklogItemCategory.values
+          .where((e) => e != BacklogItemCategory.all)
+          .map((e) => e.menuItem)
+          .toList();
+
   IconData get icon {
     switch (this) {
       case BacklogItemCategory.game:
@@ -74,15 +121,6 @@ enum BacklogItemCategory {
     }
   }
 
-  static List<DropdownMenuEntry<BacklogItemCategory>> get fullMenuItems =>
-      BacklogItemCategory.values.map((e) => e.menuItem).toList();
-
-  static List<DropdownMenuEntry<BacklogItemCategory>> get withoutAll =>
-      BacklogItemCategory.values
-          .where((e) => e != BacklogItemCategory.all)
-          .map((e) => e.menuItem)
-          .toList();
-
   DropdownMenuEntry<BacklogItemCategory> get menuItem => DropdownMenuEntry(
       value: this, label: name.toUpperCase(), leadingIcon: Icon(icon));
 }
@@ -93,15 +131,6 @@ enum BacklogItemProgress {
   complete,
   dnf,
   all;
-
-  String get textual =>
-      this == BacklogItemProgress.inprogress ? "In Progress" : name;
-
-  DropdownMenuEntry<BacklogItemProgress> get menuItem => DropdownMenuEntry(
-      value: this,
-      label: textual.toUpperCase(),
-      leadingIcon: Icon(icon, color: color),
-      style: MenuItemButton.styleFrom(foregroundColor: color));
 
   static List<DropdownMenuEntry<BacklogItemProgress>> get fullMenuItems =>
       BacklogItemProgress.values.map((e) => e.menuItem).toList();
@@ -141,12 +170,21 @@ enum BacklogItemProgress {
         return Icons.all_inclusive;
     }
   }
+
+  DropdownMenuEntry<BacklogItemProgress> get menuItem => DropdownMenuEntry(
+      value: this,
+      label: textual.toUpperCase(),
+      leadingIcon: Icon(icon, color: color),
+      style: MenuItemButton.styleFrom(foregroundColor: color));
+
+  String get textual =>
+      this == BacklogItemProgress.inprogress ? "In Progress" : name;
 }
 
 class Filter {
-  Filter({required this.type, required this.f});
   final FilterType type;
   final bool Function(BacklogItem) f;
+  Filter({required this.type, required this.f});
 }
 
 enum FilterType {
@@ -154,43 +192,4 @@ enum FilterType {
   category,
   progress,
   rating;
-}
-
-Color getRatingColor(int? rating) {
-  switch (rating) {
-    case 1:
-      return colorscheme.red;
-    case 2:
-      return colorscheme.red;
-    case 3:
-      return colorscheme.red;
-    case 4:
-      return colorscheme.yellow;
-    case 5:
-      return colorscheme.yellow;
-    case 6:
-      return colorscheme.yellow;
-    case 7:
-      return colorscheme.teal;
-    case 8:
-      return colorscheme.teal;
-    case 9:
-      return colorscheme.green;
-    case 10:
-      return colorscheme.green;
-    default:
-      return colorscheme.subtext0;
-  }
-}
-
-List<DropdownMenuEntry<int>> ratingMenuEntries(bool all) {
-  var ret = List.generate(
-      10,
-      (index) =>
-          DropdownMenuEntry(value: index + 1, label: (index + 1).toString()));
-
-  all
-      ? ret.add(const DropdownMenuEntry(value: 0, label: "ALL"))
-      : ret.add(const DropdownMenuEntry(value: 0, label: "N/A"));
-  return ret;
 }

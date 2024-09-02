@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:libero/backlog_card_edit.dart';
 
+import 'backlog_card_edit.dart';
 import 'backlog_item_card.dart';
 import 'backlog_models.dart';
 
 class BacklogListPane extends StatelessWidget {
+  final List<BacklogItem> allItems;
+
+  final List<BacklogItem> filteredItems;
+  final ValueChanged<Filter> onApplyFilter;
+  final ValueChanged<BacklogItem> onSelectItem;
+  final ValueChanged<BacklogItem> onSubmitItem;
   const BacklogListPane({
     required this.allItems,
     required this.filteredItems,
@@ -13,12 +19,6 @@ class BacklogListPane extends StatelessWidget {
     required this.onSubmitItem,
     super.key,
   });
-
-  final List<BacklogItem> allItems;
-  final List<BacklogItem> filteredItems;
-  final ValueChanged<Filter> onApplyFilter;
-  final ValueChanged<BacklogItem> onSelectItem;
-  final ValueChanged<BacklogItem> onSubmitItem;
 
   @override
   Widget build(BuildContext context) {
@@ -56,15 +56,15 @@ class BacklogListPane extends StatelessWidget {
 }
 
 class BacklogMenuBar extends StatelessWidget {
+  final double componentHeight = 54;
+
+  final ValueChanged<Filter> onApplyFilter;
+  final ValueChanged<BacklogItem> onSubmitItem;
   const BacklogMenuBar({
     super.key,
     required this.onApplyFilter,
     required this.onSubmitItem,
   });
-
-  final double componentHeight = 54;
-  final ValueChanged<Filter> onApplyFilter;
-  final ValueChanged<BacklogItem> onSubmitItem;
 
   @override
   Widget build(BuildContext context) {

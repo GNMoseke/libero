@@ -1,14 +1,15 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+
 import 'backlog_models.dart';
 
 class BacklogItemCard extends StatelessWidget {
+  final BacklogItem item;
+  final ValueChanged<BacklogItem> onSelectItem;
+
   const BacklogItemCard(
       {required this.item, required this.onSelectItem, super.key});
-  final BacklogItem item;
-
-  final ValueChanged<BacklogItem> onSelectItem;
 
   @override
   Widget build(BuildContext context) {
