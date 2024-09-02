@@ -7,61 +7,19 @@ import 'backlog_details_pane.dart';
 import 'backlog_list_pane.dart';
 import 'backlog_models.dart';
 
+void main() => runApp(const Libero());
 // TODO: allow this to be given in a config file
 final String dataDir = "${Platform.environment['HOME']}/Documents/libero_data/";
+
 final String dataPath = "${Platform.environment['HOME']}/Documents/libero.json";
 
-// I know this singleton approach is probably icky for state management, but this thing will not be writing/reading
-// data super frequently. Performance tradeoff seems reasonable for ease of use
-class ItemStore {
-  static Future<List<BacklogItem>> readBacklog() async {
-    try {
-      final file = await File(dataPath).readAsString();
-      Iterable list = jsonDecode(file);
-      List<BacklogItem> items = List<BacklogItem>.from(
-          list.map((item) => BacklogItem.fromJson(item)));
-      return Future.value(items);
-    } catch (e) {
-      return Future.value([]);
-    }
-  }
-
-  static void writeBacklog(List<BacklogItem> items) async {
-    try {
-      final newBacklogData = jsonEncode(items);
-      final file = File(dataPath);
-      await file.writeAsString(newBacklogData);
-    } catch (e) {
-      exit(1);
-    }
-  }
-}
-
-void main() => runApp(const Libero());
-
-class Libero extends StatelessWidget {
-  const Libero({super.key});
+class BacklogView extends StatefulWidget {
+  final List<BacklogItem> allItems;
+  const BacklogView({super.key, required this.allItems});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Libero',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: colorscheme.base),
-      ),
-      home: FutureBuilder(
-          future: ItemStore.readBacklog(),
-          builder: (context, items) {
-            if (items.hasData) {
-              return BacklogView(allItems: items.data!);
-            }
-            return const Text(
-              "Loading...",
-              style: TextStyle(color: Colors.red),
-            );
-          }),
-    );
-  }
+  BacklogViewState createState() =>
+      BacklogViewState(allItems: {for (var item in allItems) item.id: item});
 }
 
 class BacklogViewState extends State<BacklogView> {
@@ -97,12 +55,6 @@ class BacklogViewState extends State<BacklogView> {
     });
   }
 
-  void remove(BacklogItem item) {
-    setState(() {
-      allItems.remove(item.id);
-    });
-  }
-
   void applyFilter(Filter filter) {
     final f = filter.f;
     switch (filter.type) {
@@ -117,22 +69,6 @@ class BacklogViewState extends State<BacklogView> {
     }
     setState(() {
       _updateFilteredItems();
-    });
-  }
-
-  void _updateFilteredItems() {
-    filteredItems = allItems.values
-        .where((item) =>
-            _titleFilter(item) &&
-            _categoryFilter(item) &&
-            _progressFilter(item) &&
-            _ratingFilter(item))
-        .toList();
-  }
-
-  void setSelectedItem(BacklogItem newItem) {
-    setState(() {
-      selectedItem = newItem;
     });
   }
 
@@ -160,13 +96,77 @@ class BacklogViewState extends State<BacklogView> {
           ),
         ));
   }
+
+  void remove(BacklogItem item) {
+    setState(() {
+      allItems.remove(item.id);
+    });
+  }
+
+  void setSelectedItem(BacklogItem newItem) {
+    setState(() {
+      selectedItem = newItem;
+    });
+  }
+
+  void _updateFilteredItems() {
+    filteredItems = allItems.values
+        .where((item) =>
+            _titleFilter(item) &&
+            _categoryFilter(item) &&
+            _progressFilter(item) &&
+            _ratingFilter(item))
+        .toList();
+  }
 }
 
-class BacklogView extends StatefulWidget {
-  const BacklogView({super.key, required this.allItems});
-  final List<BacklogItem> allItems;
+// I know this singleton approach is probably icky for state management, but this thing will not be writing/reading
+// data super frequently. Performance tradeoff seems reasonable for ease of use
+class ItemStore {
+  static Future<List<BacklogItem>> readBacklog() async {
+    try {
+      final file = await File(dataPath).readAsString();
+      Iterable list = jsonDecode(file);
+      List<BacklogItem> items = List<BacklogItem>.from(
+          list.map((item) => BacklogItem.fromJson(item)));
+      return Future.value(items);
+    } catch (e) {
+      return Future.value([]);
+    }
+  }
+
+  static void writeBacklog(List<BacklogItem> items) async {
+    try {
+      final newBacklogData = jsonEncode(items);
+      final file = File(dataPath);
+      await file.writeAsString(newBacklogData);
+    } catch (e) {
+      exit(1);
+    }
+  }
+}
+
+class Libero extends StatelessWidget {
+  const Libero({super.key});
 
   @override
-  BacklogViewState createState() =>
-      BacklogViewState(allItems: {for (var item in allItems) item.id: item});
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Libero',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: colorscheme.base),
+      ),
+      home: FutureBuilder(
+          future: ItemStore.readBacklog(),
+          builder: (context, items) {
+            if (items.hasData) {
+              return BacklogView(allItems: items.data!);
+            }
+            return const Text(
+              "Loading...",
+              style: TextStyle(color: Colors.red),
+            );
+          }),
+    );
+  }
 }
