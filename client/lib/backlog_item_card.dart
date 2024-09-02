@@ -14,7 +14,7 @@ class BacklogItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GridTile(
         child: Card(
-      color: colorscheme.overlay1,
+      color: colorscheme.surface2,
       clipBehavior: Clip.antiAliasWithSaveLayer,
       child: Container(
           decoration: BoxDecoration(borderRadius: BorderRadius.circular(12.0)),
@@ -38,8 +38,8 @@ class BacklogItemCard extends StatelessWidget {
                       child: Center(
                         child: Text(item.title,
                             textAlign: TextAlign.center,
-                            style:
-                                const TextStyle(color: Colors.black, fontSize: 32.0)),
+                            style: const TextStyle(
+                                color: Colors.black, fontSize: 32.0)),
                       ),
                     ),
               Positioned(
@@ -49,10 +49,10 @@ class BacklogItemCard extends StatelessWidget {
                   height: 40.0,
                   decoration: BoxDecoration(
                       color: Color.fromRGBO(
-                          colorscheme.overlay1.red,
-                          colorscheme.overlay1.green,
-                          colorscheme.overlay1.blue,
-                          0.7),
+                          colorscheme.crust.red,
+                          colorscheme.crust.green,
+                          colorscheme.crust.blue,
+                          0.8),
                       borderRadius: BorderRadius.circular(16.0)),
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -60,7 +60,7 @@ class BacklogItemCard extends StatelessWidget {
                       children: [
                         Icon(
                           item.category.icon,
-                          color: Colors.black,
+                          color: colorscheme.overlay2,
                         ),
                         Text(item.progress.textual.toUpperCase(),
                             style: TextStyle(

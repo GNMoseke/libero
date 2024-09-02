@@ -29,7 +29,7 @@ class BacklogDetailsPane extends StatelessWidget {
             padding: const EdgeInsets.only(left: 6.0),
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12.0),
-                border: Border.all(color: colorscheme.surface0, width: 2.0)),
+                border: Border.all(color: colorscheme.crust, width: 2.0)),
             child: Padding(
               padding: const EdgeInsets.all(contentPadding),
               child: BacklogItemDetails(
@@ -81,7 +81,7 @@ class BacklogItemDetails extends StatelessWidget {
             ),
             Divider(
               thickness: 3.0,
-              color: colorscheme.surface0,
+              color: colorscheme.mantle,
             ),
             _Body(item: item!)
           ],
@@ -110,7 +110,7 @@ class _Body extends StatelessWidget {
     return SingleChildScrollView(
       child: Text(
         item.notes ?? "Nothing here!",
-        style: const TextStyle(color: Colors.black, fontSize: 14.0),
+        style: TextStyle(color: colorscheme.subtext1, fontSize: 16.0),
       ),
     );
   }
@@ -150,8 +150,8 @@ class _Header extends StatelessWidget {
                   width: paneContentWidth * 0.7,
                   child: Text(
                     item.title.toUpperCase(),
-                    style: const TextStyle(
-                        color: Colors.black,
+                    style: TextStyle(
+                        color: colorscheme.text,
                         fontSize: 64.0,
                         fontWeight: FontWeight.bold,
                         fontStyle: FontStyle.italic,
@@ -162,9 +162,9 @@ class _Header extends StatelessWidget {
                 ),
                 Text(
                   item.genre ?? "Unknown",
-                  style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 16.0,
+                  style: TextStyle(
+                      color: colorscheme.subtext0,
+                      fontSize: 20.0,
                       fontStyle: FontStyle.italic),
                 ),
               ],
