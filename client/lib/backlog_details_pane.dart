@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
-import 'package:khares_client/backlog_card_edit.dart';
+import 'package:libero/backlog_card_edit.dart';
 
 import 'backlog_models.dart';
 
@@ -219,7 +219,7 @@ class _AtAGlance extends StatelessWidget {
                         Icon(
                           item.category.icon,
                           color: colorscheme.overlay2,
-                            size: 20.0,
+                          size: 16.0,
                         ),
                         Text(item.progress.textual.toUpperCase(),
                             style: TextStyle(

@@ -8,8 +8,8 @@ import 'backlog_list_pane.dart';
 import 'backlog_models.dart';
 
 // TODO: allow this to be given in a config file
-final String dataDir = "${Platform.environment['HOME']}/Documents/khares_data/";
-final String dataPath = "${Platform.environment['HOME']}/Documents/khares.json";
+final String dataDir = "${Platform.environment['HOME']}/Documents/libero_data/";
+final String dataPath = "${Platform.environment['HOME']}/Documents/libero.json";
 
 // I know this singleton approach is probably icky for state management, but this thing will not be writing/reading
 // data super frequently. Performance tradeoff seems reasonable for ease of use
@@ -37,15 +37,15 @@ class ItemStore {
   }
 }
 
-void main() => runApp(const Khares());
+void main() => runApp(const Libero());
 
-class Khares extends StatelessWidget {
-  const Khares({super.key});
+class Libero extends StatelessWidget {
+  const Libero({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Khares',
+      title: 'Libero',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: colorscheme.base),
       ),
