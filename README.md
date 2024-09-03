@@ -78,6 +78,10 @@ This lead me to change to a simple client-only app, that does all of its work lo
 
     This just makes sure that if a user deletes the original image file (e.g. from their Downloads directory), Libero can still access it. The app doesn't do any compression/resizing/etc, which would be a little bit better than just a straight copy of the image, but it's a simple solution for the problem.
 
+4. **State management is done entirely via `setState`**
+
+    As with one of the project goals lsited above, I wante dto build Libero as "vanilla" flutter as possible, including state management, to better understand how it works. This results in a lot of callback passing, but since the app isn't particularly complex this actually ends up not being too much cognitive overhead. It also keeps me away from the **NINETEEN** external state management libraries listed in the [official flutter docs](https://docs.flutter.dev/data-and-backend/state-mgmt/options). I know a few of them are widely used, but the fact that there are so many is a little smelly to me.
+
 ### Known Issues/Missing Features
 There are a few things that need to be added for a more "complete" app that I have not gotten to yet. The most notable of them are:
 - Graceful handlng of missing image files.
