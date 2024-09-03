@@ -9,9 +9,9 @@ import 'backlog_models.dart';
 
 void main() => runApp(const Libero());
 // TODO: allow this to be given in a config file
-final String dataDir = "${Platform.environment['HOME']}/Documents/libero_data/";
+final String dataDir = "${Platform.environment['HOME']}/libero_data/";
 
-final String dataPath = "${Platform.environment['HOME']}/Documents/libero.json";
+final String dataPath = "${Platform.environment['HOME']}/libero.json";
 
 class BacklogView extends StatefulWidget {
   final List<BacklogItem> allItems;

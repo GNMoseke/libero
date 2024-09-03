@@ -1,0 +1,29 @@
+name: libero
+version: 0.1.0
+summary: A personal media backlog
+description: Completely offline tracker for games/movies/books/tv shows
+
+confinement: strict
+base: core22
+grade: stable
+
+slots:
+  dbus-libero:
+    interface: dbus
+    bus: session
+    name: com.gnmoseke.libero
+    
+apps:
+  libero:
+    command: libero
+    extensions: [gnome] # gnome includes the libraries required by flutter
+    slots:
+      - dbus-libero
+    plugs:
+      - home # required for storage
+
+parts:
+  libero:
+    source: .
+    plugin: flutter
+    flutter-target: lib/main.dart # The main entry-point file of the application

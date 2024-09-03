@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Libero
+Comment=A personal media backlog
+Exec=libero
+Icon=${SNAP}/meta/gui/libero.png
+Terminal=false
+Type=Application
+Categories=Accessories; 

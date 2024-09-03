@@ -10,6 +10,9 @@
 .svn/
 migrate_working_dir/
 
+# Ignore built local snaps
+*.snap
+
 # IntelliJ related
 *.iml
 *.ipr
