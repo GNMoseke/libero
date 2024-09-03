@@ -36,19 +36,20 @@ class BacklogListPane extends StatelessWidget {
                 ),
               ),
               Flexible(
-                  child: GridView.count(
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-                crossAxisCount: 4,
-                scrollDirection: Axis.vertical,
-                childAspectRatio: 0.65,
-                children: List<BacklogItemCard>.from(filteredItems.map((item) {
+                  child: GridView.builder(
+                itemCount: filteredItems.length,
+                itemBuilder: (context, index) {
                   return BacklogItemCard(
-                    item: item,
+                    item: filteredItems[index],
                     onSelectItem: onSelectItem,
                   );
-                })),
-              )),
+                },
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 4,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                    childAspectRatio: 0.65),
+              ))
             ],
           ),
         ));
